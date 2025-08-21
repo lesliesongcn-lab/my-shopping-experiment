@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>实验指导语</title>
+  <link rel="stylesheet" href="/src/css/main.css">
+  <link rel="stylesheet" href="/src/css/forms.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #c8e6c9 0%, #b0ecef 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Microsoft YaHei', sans-serif;
+    }
+    .container {
+      max-width: 450px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      padding: 40px 35px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: float 6s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    h1 {
+      color: #2c3e50;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.8em;
+    }
+    
+         .instructions-icon {
+       text-align: center;
+       font-size: 2.5em;
+       margin-bottom: 20px;
+       color: #a2caee;
+     }
+    h2, h3 {
+      color: #222;
+      margin-top: 18px;
+      font-size: 1.1em;
+    }
+    ul {
+      margin-left: 18px;
+      color: #555;
+    }
+    .checkbox-group {
+      margin: 18px 0 0 0;
+      display: flex;
+      align-items: center;
+    }
+    .checkbox-group label {
+      margin-left: 8px;
+      color: #444;
+      font-weight: 400;
+    }
+         .primary-btn {
+       width: 100%;
+       background: linear-gradient(45deg, #a2caee, #b0ecef);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.2em;
+      padding: 15px 0;
+      margin-top: 20px;
+      cursor: pointer;
+      font-weight: 600;
+             box-shadow: 0 10px 20px rgba(162, 202, 238, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .primary-btn:disabled {
+      background: #b2dfb2;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 2px 8px rgba(46,204,113,0.08);
+    }
+    .primary-btn:hover:enabled {
+      transform: translateY(-2px);
+             box-shadow: 0 15px 30px rgba(162, 202, 238, 0.4);
+    }
+    
+    .primary-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .primary-btn:hover:enabled::before {
+      left: 100%;
+    }
+  </style>
+</head>
+<body class="instructions-page">
+  <div class="container">
+    <div class="instructions-icon">📋</div>
+    <h1>实验指导语与知情同意</h1>
+    <div class="section">
+      <h2>实验流程</h2>
+      <h3>1. 个人信息填写</h3>
+      <p>请填写您的基本信息，包括被试编号、性别等。所有信息都将保持匿名。</p>
+      <h3>2. 购物环境</h3>
+      <p>您将进入一个虚拟购物环境，其中展示了各种商品。</p>
+      <ul>
+        <li>点击商品可以进行“购买”</li>
+        <li>鼠标悬停可查看商品信息</li>
+        <li>购物时间由背景音乐时长控制（约5分钟）</li>
+      </ul>
+    </div>
+    <form id="consent-form">
+      <div class="checkbox-group">
+        <input type="checkbox" id="consent1" required>
+        <label for="consent1">我已仔细阅读并理解了上述实验指导语</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="consent2" required>
+        <label for="consent2">我同意参加本实验，并同意上述数据使用和隐私保护政策</label>
+      </div>
+      <button type="submit" class="primary-btn" id="agree-btn" disabled>同意并继续</button>
+    </form>
+  </div>
+  <script>
+    // 只有勾选所有checkbox后按钮才可用
+    const consent1 = document.getElementById('consent1');
+    const consent2 = document.getElementById('consent2');
+    const agreeBtn = document.getElementById('agree-btn');
+    function checkConsent() {
+      agreeBtn.disabled = !(consent1.checked && consent2.checked);
+    }
+    consent1.addEventListener('change', checkConsent);
+    consent2.addEventListener('change', checkConsent);
+    document.getElementById('consent-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      localStorage.setItem('consentGiven', 'true');
+      window.location.href = '/experiment/shopping-task.html';
+    });
+  </script>
+</body>
+</html>

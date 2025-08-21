@@ -1,0 +1,14 @@
+.consent-container, .form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+input.invalid {
+  border-color: #e74c3c;
+}
+
+.primary-btn {
+  background: var(--secondary-color);
+  padding: 10px 20px;
+}

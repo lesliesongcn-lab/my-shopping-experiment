@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>信息填写 - 购物模拟平台</title>
+  <link rel="stylesheet" href="/src/css/main.css">
+  <link rel="stylesheet" href="/src/css/forms.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #c8e6c9 0%, #b0ecef 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Microsoft YaHei', sans-serif;
+    }
+    .container {
+      max-width: 450px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      padding: 40px 35px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: float 6s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    h1 {
+      color: #2c3e50;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.8em;
+    }
+    
+    .form-intro {
+      text-align: center;
+      color: #7f8c8d;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+    
+    label {
+      font-weight: 600;
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+      position: relative;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1em;
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    input:focus, select:focus {
+      border-color: #4facfe;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+    }
+    
+    .primary-btn {
+      width: 100%;
+      background: linear-gradient(45deg, #4facfe, #00f2fe);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.2em;
+      padding: 15px 0;
+      margin-top: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(79, 172, 254, 0.4);
+    }
+    
+    .primary-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .primary-btn:hover::before {
+      left: 100%;
+    }
+    
+    small {
+      color: #95a5a6;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: block;
+    }
+    
+    .radio-group {
+      display: flex;
+      gap: 30px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+    
+    .radio-option {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 0;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 25px;
+      border: 2px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    
+    .radio-option:hover {
+      border-color: #a2caee;
+      background: rgba(162, 202, 238, 0.1);
+    }
+    
+    .radio-option input[type="radio"] {
+      width: auto;
+      margin-right: 8px;
+      margin-top: 0;
+    }
+    
+    .radio-option input[type="radio"]:checked + span {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    .form-icon {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #4facfe;
+    }
+  </style>
+</head>
+<body class="form-page">
+  <div class="container">
+    <div class="form-icon">📝</div>
+    <h1>信息填写</h1>
+    <p class="form-intro">为便于记录一次完整的购物体验，请填写以下基础信息</p>
+    
+    <form id="subject-info-form">
+      <div class="form-group">
+        <label for="subject-id">被试编号</label>
+        <input type="text" id="subject-id" placeholder="例：P001" required pattern="[A-Za-z]\d{3}">
+        <small>格式：P+3位数字</small>
+      </div>
+
+      <div class="form-group">
+        <label for="name-abbr">姓名缩写</label>
+        <input type="text" id="name-abbr" placeholder="例：ZS、LM" required pattern="[A-Za-z]{2}">
+        <small>大写字母</small>
+      </div>
+
+      
+
+      <div class="form-group">
+        <label>性别</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" id="male" name="gender" value="male" required>
+            <span>男</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" id="female" name="gender" value="female">
+            <span>女</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="primary-btn">提交并继续</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById('subject-info-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const subjectId = document.getElementById('subject-id').value;
+      const subjectData = {
+        id: subjectId,
+        nameAbbr: document.getElementById('name-abbr').value,
+        gender: document.querySelector('input[name="gender"]:checked').value
+      };
+      localStorage.setItem('subjectInfo', JSON.stringify(subjectData));
+      // 根据编号奇偶决定音乐组：P+单数 -> nostalgia；P+双数 -> neutral
+      try {
+        const num = parseInt(subjectId.replace(/\D/g, ''), 10);
+        const group = (num % 2 === 1) ? 'nostalgia' : 'neutral';
+        localStorage.setItem('musicGroup', group);
+      } catch(e) {}
+      window.location.href = '/experiment/shopping-task.html';
+    });
+  </script>
+</body>
+</html>

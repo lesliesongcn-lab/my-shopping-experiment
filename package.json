@@ -1,0 +1,23 @@
+{
+  "name": "green-shopping-experiment",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@jspsych/plugin-html-keyboard-response": "^2.1.0",
+    "express": "^5.1.0",
+    "howler.js": "^2.1.2",
+    "jspsych": "^8.2.2",
+    "three": "^0.179.1"
+  },
+  "devDependencies": {
+    "vite": "^7.0.6"
+  }
+}

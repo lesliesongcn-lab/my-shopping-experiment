@@ -1,0 +1,17 @@
+:root {
+  --primary-color: #2ecc71;
+  --secondary-color: #3498db;
+}
+
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+}
+
+.start-btn {
+  background: var(--primary-color);
+  padding: 12px 24px;
+  border-radius: 4px;
+  color: white;
+  text-decoration: none;
+}
