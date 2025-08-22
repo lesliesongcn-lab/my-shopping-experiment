@@ -49,7 +49,7 @@ npm install
 cp .env.example .env # 填入你的Firebase配置
 # 3. 启动开发服务器
 npm run dev
-访问 http://localhost:5175
+访问 http://localhost:5174
 
 ### 生产部署
 bash
