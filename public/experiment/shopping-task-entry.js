@@ -80,6 +80,26 @@ window.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('keydown', startSequence, { once: true });
   document.body.addEventListener('pointerdown', tryPlayMusic, { once: true });
 
+  // 若托管平台严格限制自动播放，显示一个点击门控按钮
+  const gate = document.getElementById('audio-gate');
+  const gateBtn = document.getElementById('audio-gate-btn');
+  const hideGate = () => { if (gate) gate.style.display = 'none'; };
+  if (gateBtn) {
+    gateBtn.addEventListener('click', () => { startSequence(); hideGate(); });
+  }
+  // 一旦开始播放成功，也隐藏门控
+  window.onMusicStarted = ({ group, track, startTime }) => {
+    hideGate();
+    if (window.saveExperimentData) {
+      window.saveExperimentData({
+        type: 'music_start',
+        music_condition: group,
+        music_track: track,
+        music_start_time: startTime
+      });
+    }
+  };
+
   // ---------------- 购物界面：商品数据与渲染 ----------------
   const BASE_ITEMS = [
     // 食品类

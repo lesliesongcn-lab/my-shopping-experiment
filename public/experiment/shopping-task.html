@@ -122,6 +122,11 @@
     </main>
   </div>
 
+  <!-- 音频启动提示（适配移动端/浏览器自动播放策略） -->
+  <div id="audio-gate" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;">
+    <button id="audio-gate-btn" class="primary-btn" style="padding:14px 28px;border-radius:28px;background:linear-gradient(45deg,#81c784,#4db6ac);">点击开始播放音乐</button>
+  </div>
+
   <!-- 购物车抽屉 -->
   <div class="cart-backdrop" id="cart-backdrop"></div>
   <aside class="cart-drawer" id="cart-drawer">
