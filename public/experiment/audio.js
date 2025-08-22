@@ -49,8 +49,9 @@ class AudioManager {
       clearTimeout(timer);
       return null;
     };
-    const apiFirst = await tryFetch('/api/music-list');
-    const data = apiFirst || await tryFetch('/api/music-list.json');
+    // Netlify（静态）优先 json，其次才尝试接口（本地/后端环境）
+    const jsonFirst = await tryFetch('/api/music-list.json');
+    const data = jsonFirst || await tryFetch('/api/music-list');
     if (data && (data.nostalgia || data.neutral)) {
       MUSIC_PATHS = data;
     }
