@@ -37,19 +37,22 @@ class AudioManager {
   }
 
   async loadMusicList() {
-    try {
+    // 先尝试动态接口，再回退到静态清单文件（适配Netlify等纯静态托管）
+    const tryFetch = async (url) => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch('/api/music-list', { cache: 'no-store', signal: controller.signal });
+      try {
+        const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
+        clearTimeout(timer);
+        if (res.ok) return await res.json();
+      } catch (_) {}
       clearTimeout(timer);
-      if (res.ok) {
-        const data = await res.json();
-        if (data && (data.nostalgia || data.neutral)) {
-          MUSIC_PATHS = data;
-        }
-      }
-    } catch (e) {
-      // 忽略，使用已有静态列表
+      return null;
+    };
+    const apiFirst = await tryFetch('/api/music-list');
+    const data = apiFirst || await tryFetch('/api/music-list.json');
+    if (data && (data.nostalgia || data.neutral)) {
+      MUSIC_PATHS = data;
     }
   }
 
