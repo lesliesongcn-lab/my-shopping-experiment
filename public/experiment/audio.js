@@ -159,19 +159,24 @@ class AudioManager {
     const endAt = Date.now() + durationMs;
     const token = Date.now().toString();
     this.sequenceToken = token;
+    
     const playNext = () => {
       if (this.sequenceToken !== token) return; // 另一轮播放已开始
       if (Date.now() >= endAt) {
+        // 5分钟时间到，触发音乐结束事件（实验结束）
         try { if (window.onMusicEnded) window.onMusicEnded(); } catch(e) {}
         return;
       }
+      
       this.playGroupMusic(group).then(({track}) => {
-        // 接力播放：上一首结束 -> 卸载 -> 下一首
+        // 设置当前曲目结束后的处理：播放下一首
         try { this.backgroundMusic.off('end'); } catch(_) {}
         this.backgroundMusic.on('end', () => {
           try { this.backgroundMusic.unload(); } catch(_) {}
+          // 延迟50ms后播放下一首，避免重叠
           setTimeout(playNext, 50);
         });
+        
         // 若 5 秒内没有触发 onplay，视为失败，跳到下一首
         setTimeout(() => {
           if (this.sequenceToken !== token) return;
@@ -182,9 +187,10 @@ class AudioManager {
         }, 5000);
       }).catch(() => {
         // 如果这一首失败，直接尝试下一首
-        setTimeout(playNext, 0);
+        setTimeout(playNext, 100);
       });
     };
+    
     playNext();
   }
 

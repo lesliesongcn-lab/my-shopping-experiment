@@ -30,34 +30,6 @@ window.addEventListener('DOMContentLoaded', function() {
   let musicInterruptedAt = null;
   let musicPlayed = false;
 
-  // 只在用户第一次交互后播放音乐，避免自动播放被拦截
-  function tryPlayMusic() {
-    if (musicPlayed) return;
-    musicPlayed = true;
-    audioManager.playGroupMusic(group).then(({track, startTime}) => {
-      musicTrack = track;
-      musicStartTime = startTime;
-      // 顶部标语若存在则保持
-    }).catch(() => {
-      musicTrack = 'music_error';
-      musicStartTime = Date.now();
-      // 若没有音乐组件，忽略错误，后续序列播放会重试
-    });
-  }
-
-  // 需求：进入页面即播放音乐（不等待点击）。若被浏览器阻止，将在首次交互时重试一次。
-  // 开始播放音乐：五分钟内随机连播同组曲目，并在成功时写入Firebase
-  window.onMusicStarted = ({ group, track, startTime }) => {
-    // 若存在全局保存函数，则写入
-    if (window.saveExperimentData) {
-      window.saveExperimentData({
-        type: 'music_start',
-        music_condition: group,
-        music_track: track,
-        music_start_time: startTime
-      });
-    }
-  };
   // 使用新逻辑：在 5 分钟内连续播放该组的多首音乐
   // 为兼容浏览器自动播放策略：在首次用户交互时启动音乐序列
   let sequenceStarted = false;
@@ -68,17 +40,24 @@ window.addEventListener('DOMContentLoaded', function() {
       if (audioManager.playGroupForDuration) {
         audioManager.playGroupForDuration(group, 5 * 60 * 1000);
       } else {
-        tryPlayMusic();
+        // 兼容旧版本：单曲播放
+        audioManager.playGroupMusic(group).then(({track, startTime}) => {
+          musicTrack = track;
+          musicStartTime = startTime;
+        }).catch(() => {
+          musicTrack = 'music_error';
+          musicStartTime = Date.now();
+        });
       }
     } catch (e) {
-      tryPlayMusic();
+      console.warn('音乐启动失败:', e);
     }
   };
+
   // 优先尝试立即启动（部分浏览器允许）；若被拦截，下面的交互事件会再次触发
   setTimeout(startSequence, 0);
   document.addEventListener('pointerdown', startSequence, { once: true });
   document.addEventListener('keydown', startSequence, { once: true });
-  document.body.addEventListener('pointerdown', tryPlayMusic, { once: true });
 
   // 若托管平台严格限制自动播放，显示一个点击门控按钮
   const gate = document.getElementById('audio-gate');
@@ -87,9 +66,14 @@ window.addEventListener('DOMContentLoaded', function() {
   if (gateBtn) {
     gateBtn.addEventListener('click', () => { startSequence(); hideGate(); });
   }
-  // 一旦开始播放成功，也隐藏门控
+
+  // 音乐开始播放时的处理
   window.onMusicStarted = ({ group, track, startTime }) => {
     hideGate();
+    musicTrack = track;
+    musicStartTime = startTime;
+    
+    // 若存在全局保存函数，则写入
     if (window.saveExperimentData) {
       window.saveExperimentData({
         type: 'music_start',
