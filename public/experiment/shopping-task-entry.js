@@ -47,10 +47,22 @@ window.addEventListener('DOMContentLoaded', function() {
         }).catch(() => {
           musicTrack = 'music_error';
           musicStartTime = Date.now();
+          // 音乐播放失败时的处理
+          const bgmNote = document.getElementById('bgm-note');
+          if (bgmNote) {
+            bgmNote.textContent = '⚠️ 音乐加载失败，但不影响购物体验';
+            bgmNote.style.color = '#e74c3c';
+          }
         });
       }
     } catch (e) {
       console.warn('音乐启动失败:', e);
+      // 音乐启动失败时的处理
+      const bgmNote = document.getElementById('bgm-note');
+      if (bgmNote) {
+        bgmNote.textContent = '⚠️ 音乐启动失败，但不影响购物体验';
+        bgmNote.style.color = '#e74c3c';
+      }
     }
   };
 
@@ -72,6 +84,13 @@ window.addEventListener('DOMContentLoaded', function() {
     hideGate();
     musicTrack = track;
     musicStartTime = startTime;
+    
+    // 更新音乐状态显示
+    const bgmNote = document.getElementById('bgm-note');
+    if (bgmNote) {
+      bgmNote.textContent = '🎵 音乐播放中...';
+      bgmNote.style.color = '#27ae60';
+    }
     
     // 若存在全局保存函数，则写入
     if (window.saveExperimentData) {

@@ -72,56 +72,80 @@ class AudioManager {
       this.musicStartTime = Date.now();
       this.retryCount = 0;
 
+      // 构建多种路径尝试，适配不同部署环境
       const noSlash = track.startsWith('/') ? track.substring(1) : track;
       const alt = track.replace('/music/', '/assets/audio/');
       const altNoSlash = (alt.startsWith('/') ? alt.substring(1) : alt);
       const segmentEncode = (p) => p.split('/').map((seg, i) => i === 0 ? seg : encodeURIComponent(seg)).join('/');
-      const candidatesRaw = [track, '/' + noSlash, noSlash, alt, '/' + altNoSlash, altNoSlash];
+      
+      // 优先尝试相对路径，再尝试绝对路径
+      const candidatesRaw = [
+        track.replace(/^\//, ''), // 相对路径
+        track, // 绝对路径
+        '/' + noSlash,
+        noSlash,
+        alt,
+        '/' + altNoSlash,
+        altNoSlash
+      ];
+      
       const candidates = [
         ...candidatesRaw,
         ...candidatesRaw.map(u => encodeURI(u)),
         ...candidatesRaw.map(u => segmentEncode(u))
       ];
 
-      const tryNext = (idx) => {
-        if (idx >= candidates.length) {
-          return reject('music_error');
-        }
-        const url = candidates[idx];
-        // 尝试直接 URL 播放，失败再尝试 fetch->blob
-        const tryBlob = () => {
-          fetch(url, { cache: 'no-store' })
-            .then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.blob(); })
-            .then(blob => {
-              const blobUrl = URL.createObjectURL(blob);
-              try { if (this.backgroundMusic) { this.backgroundMusic.stop(); this.backgroundMusic.unload(); } } catch(_) {}
-              this.backgroundMusic = new Howl({
-                src: [blobUrl],
-                loop: false,
-                volume: 0.3,
-                html5: true,
-                onplay: () => {
-                  this.interrupted = false;
-                  if (window.onMusicStarted) {
-                    try { window.onMusicStarted({ group, track: url, startTime: this.musicStartTime }); } catch(e) {}
+              const tryNext = (idx) => {
+          if (idx >= candidates.length) {
+            console.warn('所有音乐路径尝试失败，组:', group, '曲目:', track);
+            return reject('music_error');
+          }
+          const url = candidates[idx];
+          console.log(`尝试播放音乐 [${idx + 1}/${candidates.length}]:`, url);
+          
+          // 尝试直接 URL 播放，失败再尝试 fetch->blob
+          const tryBlob = () => {
+            fetch(url, { cache: 'no-store' })
+              .then(r => { 
+                if (!r.ok) throw new Error('http ' + r.status); 
+                return r.blob(); 
+              })
+              .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                try { if (this.backgroundMusic) { this.backgroundMusic.stop(); this.backgroundMusic.unload(); } } catch(_) {}
+                this.backgroundMusic = new Howl({
+                  src: [blobUrl],
+                  loop: false,
+                  volume: 0.3,
+                  html5: true,
+                  onplay: () => {
+                    console.log('音乐播放成功 (blob):', url);
+                    this.interrupted = false;
+                    if (window.onMusicStarted) {
+                      try { window.onMusicStarted({ group, track: url, startTime: this.musicStartTime }); } catch(e) {}
+                    }
+                    resolve({ track: url, startTime: this.musicStartTime });
+                  },
+                  onloaderror: (id, error) => {
+                    console.warn('音乐加载失败 (blob):', url, error);
+                    this.retryCount++;
+                    URL.revokeObjectURL(blobUrl);
+                    tryNext(idx + 1);
+                  },
+                  onend: () => {
+                    console.log('音乐播放结束:', url);
+                    try { if (window.onMusicEnded) window.onMusicEnded(); } catch(e) {}
+                    this.interrupted = true;
+                    this.interruptedAt = Date.now();
                   }
-                  resolve({ track: url, startTime: this.musicStartTime });
-                },
-                onloaderror: () => {
-                  this.retryCount++;
-                  URL.revokeObjectURL(blobUrl);
-                  tryNext(idx + 1);
-                },
-                onend: () => {
-                  try { if (window.onMusicEnded) window.onMusicEnded(); } catch(e) {}
-                  this.interrupted = true;
-                  this.interruptedAt = Date.now();
-                }
+                });
+                this.backgroundMusic.play();
+              })
+              .catch((error) => {
+                console.warn('fetch blob 失败:', url, error);
+                tryNext(idx + 1);
               });
-              this.backgroundMusic.play();
-            })
-            .catch(() => tryNext(idx + 1));
-        };
+          };
 
         try { if (this.backgroundMusic) { this.backgroundMusic.stop(); this.backgroundMusic.unload(); } } catch(_) {}
         this.backgroundMusic = new Howl({
@@ -130,17 +154,20 @@ class AudioManager {
           volume: 0.3,
           html5: true,
           onplay: () => {
+            console.log('音乐播放成功 (直接):', url);
             this.interrupted = false;
             if (window.onMusicStarted) {
               try { window.onMusicStarted({ group, track: url, startTime: this.musicStartTime }); } catch(e) {}
             }
             resolve({ track: url, startTime: this.musicStartTime });
           },
-          onloaderror: () => {
+          onloaderror: (id, error) => {
+            console.warn('音乐加载失败 (直接):', url, error);
             // 直接 URL 失败，尝试 blob 方式
             tryBlob();
           },
           onend: () => {
+            console.log('音乐播放结束:', url);
             try { if (window.onMusicEnded) window.onMusicEnded(); } catch(e) {}
             this.interrupted = true;
             this.interruptedAt = Date.now();
