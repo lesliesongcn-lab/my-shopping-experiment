@@ -6,8 +6,25 @@ const app = express();
 // 解析 JSON 请求体
 app.use(express.json());
 
-// 设置静态文件目录
+// 设置静态文件目录（默认静态资源）
 app.use(express.static(path.join(__dirname, 'public')));
+// 针对图片增加强缓存
+app.use('/images', express.static(path.join(__dirname, 'public', 'images'), {
+  setHeaders: (res) => {
+    res.set('Cache-Control', 'public, max-age=2592000, immutable'); // 30天
+  }
+}));
+// 针对音乐资源：设置正确的类型、跨域、分段与缓存
+app.use('/music', express.static(path.join(__dirname, 'public', 'music'), {
+  setHeaders: (res, filePath) => {
+    if (/\.mp3$/i.test(filePath)) {
+      res.set('Content-Type', 'audio/mpeg');
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Accept-Ranges', 'bytes');
+      res.set('Cache-Control', 'public, max-age=2592000, immutable');
+    }
+  }
+}));
 // 额外暴露 /src 以便加载样式与静态资源（如 /src/css/main.css）
 app.use('/src', express.static(path.join(__dirname, 'src')));
 
