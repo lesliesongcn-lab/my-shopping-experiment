@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>购物模拟平台</title>
-  <link rel="stylesheet" href="/src/css/main.css">
-  <link rel="stylesheet" href="/src/css/forms.css">
+  <link rel="stylesheet" href="../src/css/main.css">
+  <link rel="stylesheet" href="../src/css/forms.css">
   <style>
     body {
       background: linear-gradient(135deg, #c8e6c9 0%, #b0ecef 100%);
@@ -32,9 +32,10 @@
       padding: 24px 24px;
       border-radius: 16px;
       background: linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
-      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-      display:flex; align-items:center; justify-content:space-between; gap:24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.10);
+      display:flex; align-items:center; justify-content:space-between; gap:24px; position:relative; overflow:hidden;
     }
+    .hero::after { content:''; position:absolute; inset:-60px; background:radial-gradient(600px 200px at 0% 0%, rgba(129,199,132,0.10), transparent 60%), radial-gradient(500px 180px at 100% 100%, rgba(77,182,172,0.12), transparent 60%); filter: blur(10px); }
     .hero h1 { margin:0; color:#e67e22; letter-spacing:1px; }
     .hero p { margin:6px 0 0 0; color:#7f8c8d; }
     .main-container {
@@ -52,20 +53,20 @@
     .category-list { list-style:none; padding:0; margin:0; }
     .category-list li { padding:10px 12px; border-radius:8px; cursor:pointer; color:#34495e; }
     .category-list li.active, .category-list li:hover { background:#eafaf1; color:#2c3e50; }
-    .content {
-      background:#fff; border-radius:12px; padding:16px; box-shadow:0 10px 20px rgba(0,0,0,0.06);
-    }
+    .content { background:#fff; border-radius:12px; padding:16px; box-shadow:0 18px 36px rgba(0,0,0,0.08); position:relative; }
     .controls { display:flex; gap:12px; align-items:center; justify-content:flex-start; margin-bottom:12px; }
     .controls select { padding:6px 10px; border-radius:8px; border:1px solid #e0e0e0; }
     .product-list { display: grid; gap: 14px; }
-    .product-card { display:flex; gap:16px; align-items:center; border:1px solid #f0f0f0; border-radius:12px; padding:12px; }
+    .product-card { display:flex; gap:16px; align-items:center; border:1px solid #f0f0f0; border-radius:14px; padding:12px; background:#fff; box-shadow:0 10px 24px rgba(2,6,23,.06); transform: translateY(0); transition: transform .25s ease, box-shadow .25s ease; }
+    .product-card:hover { transform: translateY(-3px); box-shadow:0 18px 40px rgba(2,6,23,.10); }
     .product-card img { width:220px; height:120px; object-fit:cover; border-radius:10px; background:#fafafa; }
     .p-mid { flex:1; }
     .p-mid .title { font-weight:700; color:#2c3e50; }
     .p-mid .desc { color:#7f8c8d; font-size:13px; margin-top:4px; }
     .p-right { text-align:right; min-width:160px; }
     .price { color:#e67e22; font-weight:800; margin-bottom:8px; display:block; }
-    .primary-btn { background: linear-gradient(45deg, #81c784, #4db6ac); color:#fff; border:none; padding:10px 18px; border-radius:24px; cursor:pointer; }
+    .primary-btn { background: linear-gradient(45deg, #81c784, #4db6ac); color:#fff; border:none; padding:10px 18px; border-radius:24px; cursor:pointer; box-shadow:0 8px 18px rgba(77,182,172,.35); transition: transform .2s ease, box-shadow .2s ease; }
+    .primary-btn:hover { transform: translateY(-2px); box-shadow:0 12px 24px rgba(77,182,172,.45); }
     .finish-bar { margin-top:16px; text-align:right; }
     .music-note { color:#95a5a6; font-size:12px; }
     /* 购物车抽屉 */
@@ -76,6 +77,7 @@
     .cart-drawer header { padding:16px; border-bottom:1px solid #eee; font-weight:700; display:flex; align-items:center; justify-content:space-between; }
     .cart-drawer .list { flex:1; overflow:auto; padding:12px 16px; }
     .cart-item { display:flex; gap:10px; align-items:center; padding:8px 0; border-bottom:1px dashed #f0f0f0; }
+    .cart-item .remove-btn { margin-left:auto; }
     .cart-item .meta { font-size:12px; color:#7f8c8d; }
     .cart-item .remove { margin-left:auto; color:#e74c3c; cursor:pointer; text-decoration:none; font-size:12px; }
     .cart-drawer footer { padding:12px 16px; border-top:1px solid #eee; }
@@ -89,15 +91,13 @@
     <div class="header-actions">
       <div class="timer" id="timer">剩余时间：05:00</div>
       <div class="music-note" id="bgm-note">优美音乐伴您舒心购物</div>
-      <div class="cart-indicator" id="cart-toggle">🛒 <span id="cart-count">0</span></div>
     </div>
   </header>
 
-  <section class="hero" style="background-image:url('/images/brand-hero.jpg'); background-size:cover; background-position:center;">
+  <section class="hero" style="background: linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));">
     <div>
-      <h1>我们的精选菜单</h1>
-      <p>轻松浏览并选择你喜欢的商品，完成一次简短的购物体验。</p>
-      <div class="tip">提示：点击“加入购物车”添加商品；右上角购物车可查看与移除；请从不同品类中选择 3-5 件后结算。</div>
+      <p style="color:#2d7d32; font-size:1.2em; margin-bottom:16px;">轻松浏览并选择你喜欢的商品，完成一次简短的购物体验。</p>
+      <div class="tip" style="font-size:14px; line-height:1.5;">提示：点击“加入购物车”添加商品；右下角“购物车”可查看与移除；请从不同品类中选择共 3-5 件商品后点击“立即结算”，整个过程中不涉及真实支付。</div>
     </div>
   </section>
 
@@ -122,29 +122,76 @@
     </main>
   </div>
 
-  <!-- 购物车抽屉 -->
-  <div class="cart-backdrop" id="cart-backdrop"></div>
-  <aside class="cart-drawer" id="cart-drawer">
+  <!-- 音频启动提示（适配移动端/浏览器自动播放策略） -->
+  <div id="audio-gate" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;">
+    <button id="audio-gate-btn" class="primary-btn" style="padding:14px 28px;border-radius:28px;background:linear-gradient(45deg,#81c784,#4db6ac);">点击开始播放音乐</button>
+  </div>
+
+  <!-- 悬浮购物车模态框 -->
+  <style>
+    .cart-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); opacity:0; display:none; z-index:1200; transition: opacity .25s ease; }
+    .cart-modal { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.98); width:680px; max-width:92vw; height:70vh; 
+      background: linear-gradient(135deg, rgba(236,253,245,0.65), rgba(209,250,229,0.55));
+      border: 1px solid rgba(56,178,172,0.35);
+      backdrop-filter: blur(12px) saturate(120%);
+      -webkit-backdrop-filter: blur(12px) saturate(120%);
+      border-radius:16px; box-shadow:0 30px 80px rgba(56,178,172,.25); display:none; z-index:1201; overflow:hidden; flex-direction:column; opacity:0; transition: opacity .25s ease, transform .25s ease; }
+    .cart-modal.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+    @keyframes modalFloat {
+      0%   { transform: translate(-50%,-50%) scale(1) translateY(0) rotate(0.1deg); box-shadow:0 24px 60px rgba(0,0,0,.25); }
+      50%  { transform: translate(-50%,-50%) scale(1) translateY(-10px) rotate(-0.25deg); box-shadow:0 28px 70px rgba(0,0,0,.28); }
+      100% { transform: translate(-50%,-50%) scale(1) translateY(0) rotate(0.1deg); box-shadow:0 24px 60px rgba(0,0,0,.25); }
+    }
+    .cart-modal.floaty { animation: modalFloat 4s ease-in-out infinite; }
+    .cart-modal-backdrop.show { opacity:1; }
+    .cart-modal header { padding:16px; border-bottom:1px solid rgba(56,178,172,.25); display:flex; justify-content:space-between; align-items:center; 
+      background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15)); }
+    .cart-modal .list { flex:1; overflow:auto; padding:16px 18px; font-size:15px; }
+    .cart-modal footer { padding:12px 16px; border-top:1px solid rgba(56,178,172,.25); background: linear-gradient(0deg, rgba(255,255,255,0.35), rgba(255,255,255,0.10)); }
+    .action-row { display:flex; gap:12px; justify-content:flex-end; }
+    .btn { border:none; border-radius:24px; padding:10px 16px; cursor:pointer; }
+    .btn.small { padding:8px 12px; border-radius:18px; font-size:13px; }
+    .btn-primary { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; }
+    .btn-ghost { background:#e5e7eb; color:#6b7280; }
+    .muted { color:#7f8c8d; font-size:12px; }
+  </style>
+  <div class="cart-modal-backdrop" id="cart-modal-backdrop"></div>
+  <div class="cart-modal" id="cart-modal">
     <header>
-      <span>已选商品</span>
-      <a href="#" id="cart-close" style="color:#3498db;text-decoration:none;">关闭</a>
+      <strong>已选商品</strong>
+      <button id="cart-close" class="btn btn-ghost small">关闭</button>
     </header>
-    <div class="list" id="drawer-list"></div>
+    <div class="list" id="modal-list"></div>
     <footer>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
         <div>
-          <div style="color:#7f8c8d;font-size:12px;">合计</div>
-          <strong id="drawer-total">￥0.00</strong>
+          <div class="muted">合计</div>
+          <strong id="modal-total">￥0.00</strong>
         </div>
-        <button id="drawer-checkout" class="checkout-btn">结算并完成</button>
+        <div class="action-row">
+          <button id="modal-think" class="btn btn-ghost" style="display:none;">再想想</button>
+          <button id="modal-confirm" class="btn btn-primary">立即结算</button>
+        </div>
       </div>
     </footer>
-  </aside>
+  </div>
+
+  <!-- 右侧悬浮购物车按钮 -->
+  <style>
+    .floating-cart { position:fixed; right:24px; bottom:28px; display:flex; flex-direction:column; gap:14px; z-index:1300; }
+    .floating-cart .fab { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; border:none; padding:16px 22px; border-radius:30px; box-shadow:0 16px 36px rgba(77,182,172,.35); cursor:pointer; font-size:16px; transition: transform .2s ease, box-shadow .2s ease; }
+    .floating-cart .fab:hover { transform: translateY(-2px); box-shadow:0 22px 44px rgba(77,182,172,.45); }
+    .floating-cart .fab.secondary { background:#334155; }
+  </style>
+  <div class="floating-cart">
+    <button id="fab-cart" class="fab">🛒 购物车</button>
+    <button id="fab-checkout" class="fab secondary">立即结算</button>
+  </div>
   <!-- Firebase CDN 与配置（需在 public/firebase-config.js 填写真实配置） -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="/firebase-config.js"></script>
-  <script src="firebase.js"></script>
+  <script src="/firebase.js"></script>
   <!-- 直接引用 public/experiment/ 下的 js 文件 -->
   <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
   <script src="audio.js"></script>

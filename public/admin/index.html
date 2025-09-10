@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>实验数据管理后台</title>
+  <link rel="stylesheet" href="/src/css/main.css">
+  <style>
+    body { background:#f7f9fc; margin:0; font-family:'Microsoft YaHei', sans-serif; color:#1f2937; }
+    .header { background:#ffffff; color:#1f2937; padding:18px 0; border-bottom:1px solid #eef2f7; }
+    .header .inner { max-width:1200px; margin:0 auto; padding:0 20px; display:flex; align-items:flex-end; justify-content:space-between; }
+    .brand { font-size:22px; font-weight:900; letter-spacing:.5px; }
+    .sub { color:#64748b; font-size:12px; }
+    .wrap { max-width:1200px; margin:20px auto; padding:0 20px; }
+    .kpi-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:16px; }
+    .kpi-card { background:#fff; border-radius:14px; padding:18px; box-shadow:0 10px 24px rgba(2,6,23,.08); border:1px solid #eef2f7; }
+    .kpi-title { font-size:13px; color:#64748b; }
+    .kpi-value { margin-top:6px; font-size:28px; font-weight:900; letter-spacing:.5px; }
+    .kpi-value.orange { color:#f59e0b; }
+    .kpi-value.purple { color:#7c3aed; }
+    .panel { background:#fff; border-radius:14px; box-shadow:0 10px 24px rgba(2,6,23,.08); border:1px solid #eef2f7; }
+    .panel-header { padding:14px 16px; border-bottom:1px solid #eef2f7; display:flex; align-items:center; justify-content:space-between; }
+    .panel-title { font-weight:800; letter-spacing:.5px; }
+    .panel-body { padding:12px 16px; }
+    .grid-2 { display:block; margin-top:16px; }
+    .toolbar { display:flex; gap:8px; }
+    .btn { background:linear-gradient(45deg,#2563eb,#22c55e); border:none; color:#fff; padding:8px 14px; border-radius:10px; cursor:pointer; box-shadow:0 6px 16px rgba(37,99,235,.25); transition:all 0.2s ease; }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(37,99,235,.35); }
+    .btn.secondary { background:#334155; box-shadow:none; }
+    .btn.secondary:hover { background:#475569; transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+    .btn.danger { background:linear-gradient(45deg,#f33737,#f13737); box-shadow:0 6px 16px rgba(220,38,38,.25); }
+    .btn.danger:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(220,38,38,.35); }
+    .btn-small { padding:6px 12px; font-size:11px; border-radius:8px; font-weight:600; letter-spacing:0.5px; transition:all 0.2s ease; }
+    .btn-small:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+    .btn-small.danger { background:linear-gradient(45deg,#9ca3af,#6b7280); color:#fff; border:none; }
+    .btn-small.danger:hover { background:linear-gradient(45deg,#6b7280,#4b5563); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:10px 10px; border-bottom:1px dashed #e5e9f2; font-size:13px; }
+    th { text-align:left; color:#475569; font-weight:700; }
+    .muted { color:#94a3b8; font-size:12px; }
+  </style>
+  <script>
+    async function loadStats(){
+      const r = await fetch('/api/experiment-stats');
+      const s = await r.json();
+      document.getElementById('kpi-participants').textContent = s.participants || 0;
+      document.getElementById('kpi-purchases').textContent = s.totalPurchases || 0;
+      document.getElementById('kpi-green').textContent = ((s.greenRatio||0)*100).toFixed(1) + ' %';
+      document.getElementById('kpi-avgtime').textContent = (s.avgDecisionSec||0).toFixed(1) + '秒';
+      document.getElementById('kpi-spend').textContent = '¥' + (s.totalSpend||0).toFixed(2);
+    }
+    async function loadList(){
+      const r = await fetch('/api/experiment-data');
+      const list = await r.json();
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      list.slice(-200).reverse().forEach(row => {
+        const tr = document.createElement('tr');
+        const items = Array.isArray(row.selected_items) ? row.selected_items.join(' | ') : '';
+        
+        // 计算绿色消费比例：eco_selected / 16
+        const ecoSelected = Number(row.eco_selected) || 0;
+        const greenRatio = (ecoSelected / 16 * 100).toFixed(2);
+        
+        tr.innerHTML = `
+          <td>${row.received_at || ''}</td>
+          <td>${(row.participant_id || (row.subjectInfo&&row.subjectInfo.id) || '')}</td>
+          <td>${row.music_condition || ''}</td>
+          <td>${row.gender || (row.subjectInfo&&row.subjectInfo.gender) || ''}</td>
+          <td>${row.ageRange || (row.subjectInfo&&row.subjectInfo.ageRange) || ''}</td>
+          <td>${row.education || (row.subjectInfo&&row.subjectInfo.education) || ''}</td>
+          <td>${(row.purchase_duration_ms ? (row.purchase_duration_ms/1000).toFixed(2) : '')}</td>
+          <td>${row.device_type || ''}</td>
+          <td>${('total_price' in row) ? ('¥'+Number(row.total_price).toFixed(2)) : ''}</td>
+          <td>${greenRatio}%</td>
+          <td class="muted">${items}</td>
+          <td><button class="btn-small danger" onclick="deleteRecord('${row._id}')">Del</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function exportCSV(){
+      window.location.href = '/api/experiment-export.csv';
+    }
+    function exportProductLevel(){
+      window.location.href = '/api/product-level-export.csv';
+    }
+    function refresh(){ loadStats(); loadList(); }
+    
+    // 删除单个记录
+    async function deleteRecord(id) {
+      if (confirm('确认删除这条记录吗？\n\n此操作不可撤销！')) {
+        try {
+          const response = await fetch(`/api/experiment-data/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const result = await response.json();
+          if (result.ok) {
+            alert('记录删除成功！');
+            refresh();
+          } else {
+            alert('删除失败：' + result.error);
+          }
+        } catch (error) {
+          console.error('Delete error:', error);
+          alert('删除失败：' + error.message);
+        }
+      }
+    }
+    
+    // 清空所有数据
+    async function clearAllData() {
+      if (confirm('确认清空所有数据吗？\n\n此操作将删除所有实验记录，不可撤销！\n\n建议先导出数据备份。')) {
+        if (confirm('最后确认：真的要清空所有数据吗？')) {
+          try {
+            const response = await fetch('/api/experiment-data', {
+              method: 'DELETE',
+              credentials: 'include'
+            });
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            if (result.ok) {
+              alert('所有数据已清空！');
+              refresh();
+            } else {
+              alert('清空失败：' + result.error);
+            }
+          } catch (error) {
+            console.error('Clear all error:', error);
+            alert('清空失败：' + error.message);
+          }
+        }
+      }
+    }
+    
+    window.addEventListener('DOMContentLoaded', refresh);
+  </script>
+</head>
+<body>
+  <div class="header">
+    <div class="inner">
+      <div class="brand">实验数据管理后台</div>
+      <div class="sub">怀旧与绿色消费行为实验 · 数据分析与管理</div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-title">参与人数</div><div id="kpi-participants" class="kpi-value">0</div></div>
+      <div class="kpi-card"><div class="kpi-title">总购买数</div><div id="kpi-purchases" class="kpi-value">0</div></div>
+      <div class="kpi-card"><div class="kpi-title">绿色比例</div><div id="kpi-green" class="kpi-value">0.0 %</div></div>
+      <div class="kpi-card"><div class="kpi-title">平均决策时间</div><div id="kpi-avgtime" class="kpi-value orange">0.0秒</div></div>
+      <div class="kpi-card"><div class="kpi-title">总消费金额</div><div id="kpi-spend" class="kpi-value purple">¥0.00</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">参与者列表与购买记录</div>
+        <div class="toolbar">
+          <button class="btn secondary" onclick="refresh()">刷新数据</button>
+          <button class="btn" onclick="exportCSV()">导出被试层数据</button>
+          <button class="btn" onclick="exportProductLevel()">导出商品层数据</button>
+          <button class="btn danger" onclick="clearAllData()">清空所有数据</button>
+        </div>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>被试编号</th>
+                <th>分组</th>
+                <th>性别</th>
+                <th>年龄</th>
+                <th>教育程度</th>
+                <th>时长(秒)</th>
+                <th>设备类型</th>
+                <th>消费金额</th>
+                <th>绿色比例</th>
+                <th>商品选择</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

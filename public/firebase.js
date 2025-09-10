@@ -11,5 +11,16 @@ window.saveExperimentData = async function(payload){
   } catch (e) {
     console.error('实验数据保存失败:', e);
   }
+
+  // 同步保存到本地后端，确保有后端落盘可导出
+  try {
+    await fetch('/api/experiment-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('后端保存失败（已忽略，不影响流程）:', e);
+  }
 }
 

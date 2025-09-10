@@ -186,18 +186,34 @@
     <div class="form-icon">📝</div>
     <h1>信息填写</h1>
     <p class="form-intro">为便于记录一次完整的购物体验，请填写以下基础信息</p>
-    
+
     <form id="subject-info-form">
+      <!-- 被试编号与姓名缩写由系统自动生成/不再手填 -->
+      <input type="hidden" id="subject-id">
+      <input type="hidden" id="name-abbr" value="NA">
+
       <div class="form-group">
-        <label for="subject-id">被试编号</label>
-        <input type="text" id="subject-id" placeholder="例：P001" required pattern="[A-Za-z]\d{3}">
-        <small>格式：P+3位数字</small>
+        <label for="age-range">年龄范围</label>
+        <select id="age-range" required>
+          <option value="">请选择</option>
+          <option value="18-25">18–25岁</option>
+          <option value="26-35">26–35岁</option>
+          <option value="36-45">36–45岁</option>
+          <option value="46-55">46–55岁</option>
+          <option value=">55">55岁以上</option>
+        </select>
       </div>
 
       <div class="form-group">
-        <label for="name-abbr">姓名缩写</label>
-        <input type="text" id="name-abbr" placeholder="例：ZS、LM" required pattern="[A-Za-z]{2}">
-        <small>大写字母</small>
+        <label for="education">教育程度</label>
+        <select id="education" required>
+          <option value="">请选择</option>
+          <option value="highschool_or_below">高中及以下</option>
+          <option value="junior_college">大专</option>
+          <option value="bachelor">本科</option>
+          <option value="master">硕士</option>
+          <option value="doctor">博士</option>
+        </select>
       </div>
 
       
@@ -220,22 +236,46 @@
     </form>
   </div>
   <script>
-    document.getElementById('subject-info-form').addEventListener('submit', (e) => {
+    document.getElementById('subject-info-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const subjectId = document.getElementById('subject-id').value;
+      let subjectId = document.getElementById('subject-id').value;
       const subjectData = {
         id: subjectId,
         nameAbbr: document.getElementById('name-abbr').value,
-        gender: document.querySelector('input[name="gender"]:checked').value
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        ageRange: document.getElementById('age-range').value,
+        education: document.getElementById('education').value
       };
-      localStorage.setItem('subjectInfo', JSON.stringify(subjectData));
-      // 根据编号奇偶决定音乐组：P+单数 -> nostalgia；P+双数 -> neutral
+      // 轮流分配：向后端请求分组，同时自动生成被试编号
       try {
-        const num = parseInt(subjectId.replace(/\D/g, ''), 10);
-        const group = (num % 2 === 1) ? 'nostalgia' : 'neutral';
+        const res = await fetch('/api/assign-group', { cache: 'no-store' });
+        const json = await res.json();
+        if (json && json.participant_id) {
+          subjectId = json.participant_id;
+        }
+        const group = (json && (json.group === 'nostalgia' || json.group === 'neutral')) ? json.group : (Math.random() < 0.5 ? 'neutral' : 'nostalgia');
+        // 保存最终 subjectId
+        subjectData.id = subjectId;
+        localStorage.setItem('subjectInfo', JSON.stringify(subjectData));
         localStorage.setItem('musicGroup', group);
-      } catch(e) {}
-      window.location.href = '/experiment/shopping-task.html';
+        window.location.href = '/experiment/shopping-task.html?group=' + encodeURIComponent(group);
+      } catch (err) {
+        const fallback = Math.random() < 0.5 ? 'neutral' : 'nostalgia';
+        // 离线兜底生成ID
+        if (!subjectId) {
+          const now = new Date();
+          subjectId = 'P' + now.getFullYear()
+            + String(now.getMonth()+1).padStart(2,'0')
+            + String(now.getDate()).padStart(2,'0')
+            + String(now.getHours()).padStart(2,'0')
+            + String(now.getMinutes()).padStart(2,'0')
+            + String(now.getSeconds()).padStart(2,'0');
+        }
+        subjectData.id = subjectId;
+        localStorage.setItem('subjectInfo', JSON.stringify(subjectData));
+        localStorage.setItem('musicGroup', fallback);
+        window.location.href = '/experiment/shopping-task.html?group=' + encodeURIComponent(fallback);
+      }
     });
   </script>
 </body>

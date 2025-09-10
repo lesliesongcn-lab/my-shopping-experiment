@@ -4,22 +4,17 @@
 
 window.addEventListener('DOMContentLoaded', function() {
   let audioManager = window.audioManager || new window.AudioManager();
-  // 以被试编号为准：P+单数 -> nostalgia，P+双数 -> neutral。
-  // 若没有被试编号，再回退到已有的 localStorage 或随机。
+  // 分组优先级：URL参数 > localStorage（信息页已随机）> 兜底随机
   let group = null;
   try {
-    const si = JSON.parse(localStorage.getItem('subjectInfo') || 'null');
-    if (si && si.id) {
-      const num = parseInt(String(si.id).replace(/\D/g, ''), 10);
-      if (!isNaN(num)) {
-        group = (num % 2 === 1) ? 'nostalgia' : 'neutral';
-        localStorage.setItem('musicGroup', group);
-      }
+    const params = new URLSearchParams(location.search);
+    const forced = params.get('group');
+    if (forced === 'nostalgia' || forced === 'neutral') {
+      group = forced;
+      localStorage.setItem('musicGroup', group);
     }
-  } catch (e) {}
-  if (!group) {
-    group = localStorage.getItem('musicGroup');
-  }
+  } catch(e) {}
+  if (!group) group = localStorage.getItem('musicGroup');
   if (!group) {
     group = Math.random() < 0.5 ? 'neutral' : 'nostalgia';
     localStorage.setItem('musicGroup', group);
@@ -30,34 +25,9 @@ window.addEventListener('DOMContentLoaded', function() {
   let musicInterruptedAt = null;
   let musicPlayed = false;
 
-  // 只在用户第一次交互后播放音乐，避免自动播放被拦截
-  function tryPlayMusic() {
-    if (musicPlayed) return;
-    musicPlayed = true;
-    audioManager.playGroupMusic(group).then(({track, startTime}) => {
-      musicTrack = track;
-      musicStartTime = startTime;
-      // 顶部标语若存在则保持
-    }).catch(() => {
-      musicTrack = 'music_error';
-      musicStartTime = Date.now();
-      // 若没有音乐组件，忽略错误，后续序列播放会重试
-    });
-  }
+  // 记录任务开始时间用于计算购买时长
+  const taskStartTs = Date.now();
 
-  // 需求：进入页面即播放音乐（不等待点击）。若被浏览器阻止，将在首次交互时重试一次。
-  // 开始播放音乐：五分钟内随机连播同组曲目，并在成功时写入Firebase
-  window.onMusicStarted = ({ group, track, startTime }) => {
-    // 若存在全局保存函数，则写入
-    if (window.saveExperimentData) {
-      window.saveExperimentData({
-        type: 'music_start',
-        music_condition: group,
-        music_track: track,
-        music_start_time: startTime
-      });
-    }
-  };
   // 使用新逻辑：在 5 分钟内连续播放该组的多首音乐
   // 为兼容浏览器自动播放策略：在首次用户交互时启动音乐序列
   let sequenceStarted = false;
@@ -68,17 +38,59 @@ window.addEventListener('DOMContentLoaded', function() {
       if (audioManager.playGroupForDuration) {
         audioManager.playGroupForDuration(group, 5 * 60 * 1000);
       } else {
-        tryPlayMusic();
+        // 兼容旧版本：单曲播放
+        audioManager.playGroupMusic(group).then(({track, startTime}) => {
+          musicTrack = track;
+          musicStartTime = startTime;
+        }).catch(() => {
+          musicTrack = 'music_error';
+          musicStartTime = Date.now();
+          // 音乐播放失败时的处理
+          const bgmNote = document.getElementById('bgm-note');
+          if (bgmNote) {
+            bgmNote.textContent = '⚠️ 音乐加载失败，但不影响购物体验';
+            bgmNote.style.color = '#e74c3c';
+          }
+        });
       }
     } catch (e) {
-      tryPlayMusic();
+      console.warn('音乐启动失败:', e);
+      // 音乐启动失败时的处理
+      const bgmNote = document.getElementById('bgm-note');
+      if (bgmNote) {
+        bgmNote.textContent = '⚠️ 音乐启动失败，但不影响购物体验';
+        bgmNote.style.color = '#e74c3c';
+      }
     }
   };
+
   // 优先尝试立即启动（部分浏览器允许）；若被拦截，下面的交互事件会再次触发
   setTimeout(startSequence, 0);
   document.addEventListener('pointerdown', startSequence, { once: true });
   document.addEventListener('keydown', startSequence, { once: true });
-  document.body.addEventListener('pointerdown', tryPlayMusic, { once: true });
+
+  // 若托管平台严格限制自动播放，显示一个点击门控按钮
+  const gate = document.getElementById('audio-gate');
+  const gateBtn = document.getElementById('audio-gate-btn');
+  const hideGate = () => { if (gate) gate.style.display = 'none'; };
+  if (gateBtn) {
+    gateBtn.addEventListener('click', () => { startSequence(); hideGate(); });
+  }
+
+  // 音乐开始播放时的处理
+  window.onMusicStarted = ({ group, track, startTime }) => {
+    hideGate();
+    musicTrack = track;
+    musicStartTime = startTime;
+    
+    // 更新音乐状态显示
+    const bgmNote = document.getElementById('bgm-note');
+    if (bgmNote) {
+      bgmNote.textContent = '🎵 音乐播放中...';
+      bgmNote.style.color = '#27ae60';
+    }
+    // 仅在完成时保存，避免后台出现重复行
+  };
 
   // ---------------- 购物界面：商品数据与渲染 ----------------
   const BASE_ITEMS = [
@@ -149,6 +161,7 @@ window.addEventListener('DOMContentLoaded', function() {
       const card = document.createElement('div');
       card.className = 'product-card';
       const displayName = p.variant === 'eco' ? (base.ecoName || base.name) : (base.classicName || base.name);
+      const inCart = state.selectedItems.includes(p.key);
       card.innerHTML = `
         <img src="${encodeURI(p.image)}" alt="${p.category}-${p.name}"/>
         <div class="p-mid">
@@ -157,7 +170,7 @@ window.addEventListener('DOMContentLoaded', function() {
         </div>
         <div class="p-right">
           <span class="price">￥${base.price.toFixed(2)}</span>
-          <button class="primary-btn" data-id="${p.key}">加入购物车</button>
+          <button class="primary-btn" data-id="${p.key}" data-status="${inCart ? 'in' : 'out'}" style="${inCart ? 'background:#cbd5e1;color:#475569;' : ''}">${inCart ? '移出购物车' : '加入购物车'}</button>
         </div>
       `;
       list.appendChild(card);
@@ -167,6 +180,17 @@ window.addEventListener('DOMContentLoaded', function() {
       btn.addEventListener('click', (e) => {
         const id = e.currentTarget.getAttribute('data-id');
         toggleCart(id);
+        // 切换按钮状态与文案
+        const nowIn = state.selectedItems.includes(id);
+        e.currentTarget.textContent = nowIn ? '移出购物车' : '加入购物车';
+        e.currentTarget.setAttribute('data-status', nowIn ? 'in' : 'out');
+        if (nowIn) {
+          e.currentTarget.style.background = '#cbd5e1';
+          e.currentTarget.style.color = '#475569';
+        } else {
+          e.currentTarget.style.background = '';
+          e.currentTarget.style.color = '#fff';
+        }
       });
     });
   }
@@ -258,9 +282,40 @@ window.addEventListener('DOMContentLoaded', function() {
       musicInterruptedAt = window.musicInterruptedAt;
     }
     let selectedItems = window.greenShopping ? window.greenShopping.selectedItems : [];
-    let participant_id = window.participantData ? window.participantData.participant_id : 'unknown';
-    let gender = window.participantData ? window.participantData.gender : 'unknown';
+    // 从信息表单读取人口学信息
+    let subjectInfo = null;
+    try { subjectInfo = JSON.parse(localStorage.getItem('subjectInfo') || 'null'); } catch(e) {}
+    let participant_id = subjectInfo && subjectInfo.id ? subjectInfo.id : 'unknown';
+    let gender = subjectInfo && subjectInfo.gender ? subjectInfo.gender : 'unknown';
+
+    // 计算购买时长（秒/毫秒）
+    const purchaseDurationMs = Date.now() - taskStartTs;
     if (window.saveExperimentData) {
+      // 构建商品层面的详细数据
+      const productChoices = PRODUCTS.map(p => {
+        const base = baseOf(p);
+        return {
+          product_id: p.key,
+          base_id: p.baseId,
+          category: p.category,
+          variant: p.variant, // 'classic' or 'eco'
+          name: p.variant === 'eco' ? (base.ecoName || base.name) : (base.classicName || base.name),
+          price: base.price || 0,
+          selected: selectedItems.includes(p.key) ? 1 : 0
+        };
+      });
+
+      // 设备信息收集
+      const deviceInfo = {
+        user_agent: navigator.userAgent,
+        platform: navigator.platform,
+        device_type: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        screen_width: screen.width,
+        screen_height: screen.height,
+        viewport_width: window.innerWidth,
+        viewport_height: window.innerHeight
+      };
+
       await window.saveExperimentData({
         participant_id,
         gender,
@@ -273,22 +328,122 @@ window.addEventListener('DOMContentLoaded', function() {
         selected_categories: Array.from(new Set(selectedItems
           .map(id => PRODUCTS.find(x=>x.key===id))
           .filter(Boolean)
-          .map(p => p.category)))
+          .map(p => p.category))),
+        // 新增：商品层面详细数据
+        product_choices: productChoices,
+        // 绿色商品统计
+        eco_selected: productChoices.filter(p => p.variant === 'eco' && p.selected).length,
+        classic_selected: productChoices.filter(p => p.variant === 'classic' && p.selected).length,
+        green_ratio: productChoices.filter(p => p.selected).length > 0 ? 
+          productChoices.filter(p => p.variant === 'eco' && p.selected).length / 
+          productChoices.filter(p => p.selected).length : 0,
+        subjectInfo,
+        ageRange: subjectInfo ? subjectInfo.ageRange : undefined,
+        education: subjectInfo ? subjectInfo.education : undefined,
+        purchase_duration_ms: purchaseDurationMs,
+        // 简单合计金额（以卡片价格求和）
+        total_price: selectedItems.reduce((sum, id) => {
+          const p = PRODUCTS.find(x => x.key === id);
+          if (!p) return sum;
+          const base = baseOf(p);
+          return sum + (base.price || 0);
+        }, 0),
+        // 设备信息
+        ...deviceInfo
       });
     }
     window.location.href = '/experiment/end.html';
   };
 
   // 购物车抽屉开关
-  const toggleBtn = document.getElementById('cart-toggle');
-  const drawer = document.getElementById('cart-drawer');
-  const backdrop = document.getElementById('cart-backdrop');
-  const closeBtn = document.getElementById('cart-close');
-  const openDrawer = () => { drawer.classList.add('show'); backdrop.classList.add('show'); };
-  const closeDrawer = () => { drawer.classList.remove('show'); backdrop.classList.remove('show'); };
-  if (toggleBtn) toggleBtn.addEventListener('click', openDrawer);
-  if (backdrop) backdrop.addEventListener('click', closeDrawer);
-  if (closeBtn) closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); closeDrawer(); });
+  // 悬浮购物车模态
+  const modal = document.getElementById('cart-modal');
+  const modalBackdrop = document.getElementById('cart-modal-backdrop');
+  const modalList = document.getElementById('modal-list');
+  const modalTotal = document.getElementById('modal-total');
+  const modalClose = document.getElementById('cart-close');
+  const modalConfirm = document.getElementById('modal-confirm');
+  const modalThink = document.getElementById('modal-think');
+  const openDrawer = (confirmMode=false) => {
+    // 渲染列表
+    if (modalList) {
+      modalList.innerHTML = '';
+      let total = 0;
+      state.selectedItems.forEach(id => {
+        const p = PRODUCTS.find(x => x.key === id);
+        if (!p) return;
+        const base = baseOf(p);
+        total += base.price;
+        const item = document.createElement('div');
+        item.className = 'cart-item';
+        item.innerHTML = `
+          <img src="${encodeURI(p.image)}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;background:#fafafa;"/>
+          <div>
+            <div style="font-size:13px;color:#2c3e50;">${p.variant === 'eco' ? (base.ecoName || base.name) : (base.classicName || base.name)}</div>
+            <div class="meta">￥${base.price.toFixed(2)}</div>
+          </div>
+          <button class="btn btn-ghost remove-btn" data-remove="${p.key}">移除</button>
+        `;
+        modalList.appendChild(item);
+      });
+      if (modalTotal) modalTotal.textContent = '￥' + total.toFixed(2);
+      modalList.querySelectorAll('button[data-remove]').forEach(a => {
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const id = e.currentTarget.getAttribute('data-remove');
+          toggleCart(id);
+          openDrawer(confirmMode);
+        });
+      });
+    }
+    if (modal && modalBackdrop){
+      modal.style.display = 'flex';
+      modalBackdrop.style.display = 'block';
+      // 触发过渡
+      requestAnimationFrame(()=>{
+        modal.classList.add('show');
+        modalBackdrop.classList.add('show');
+        modal.classList.add('floaty');
+      });
+    }
+    // 确认模式：显示“再想想/立即结算”
+    if (modalConfirm && modalThink){
+      if (confirmMode) {
+        modalThink.style.display = 'inline-block';
+        modalConfirm.textContent = '确认结算';
+      } else {
+        modalThink.style.display = 'none';
+        modalConfirm.textContent = '立即结算';
+      }
+    }
+  };
+  const closeDrawer = () => {
+    if (modal) { modal.classList.remove('show'); modal.classList.remove('floaty'); }
+    if (modalBackdrop) modalBackdrop.classList.remove('show');
+    setTimeout(()=>{
+      if (modal) modal.style.display = 'none';
+      if (modalBackdrop) modalBackdrop.style.display = 'none';
+    }, 200);
+  };
+  if (modalBackdrop) modalBackdrop.addEventListener('click', closeDrawer);
+  if (modalClose) modalClose.addEventListener('click', (e)=>{ e.preventDefault(); closeDrawer(); });
+
+  // 悬浮购物车按钮逻辑
+  const fabCart = document.getElementById('fab-cart');
+  const fabCheckout = document.getElementById('fab-checkout');
+  if (fabCart) fabCart.addEventListener('click', ()=>openDrawer(false));
+  if (fabCheckout) fabCheckout.addEventListener('click', ()=>openDrawer(true));
+  if (modalThink) modalThink.addEventListener('click', closeDrawer);
+  if (modalConfirm) modalConfirm.addEventListener('click', ()=>{
+    // 如果当前是普通模式，切换到确认模式；若已是确认模式则提交
+    const confirmMode = modalThink && modalThink.style.display !== 'none';
+    if (!confirmMode) {
+      openDrawer(true);
+      return;
+    }
+    closeDrawer();
+    document.getElementById('finish-btn').click();
+  });
 
   const checkoutBtn = document.getElementById('drawer-checkout');
   if (checkoutBtn) checkoutBtn.addEventListener('click', async ()=>{
