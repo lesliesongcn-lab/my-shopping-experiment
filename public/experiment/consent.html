@@ -139,10 +139,8 @@
         var forced = params.get('group');
         if (forced === 'nostalgia' || forced === 'neutral') {
           localStorage.setItem('musicGroup', forced);
-        } else if (!localStorage.getItem('musicGroup')) {
-          var g = Math.random() < 0.5 ? 'neutral' : 'nostalgia';
-          localStorage.setItem('musicGroup', g);
         }
+        // 注意：不在此页面做随机/本地分组，统一由 info-form 调用后端接口分配
       } catch(e) {}
     })();
     document.getElementById('start-btn').addEventListener('click', () => {

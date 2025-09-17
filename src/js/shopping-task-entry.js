@@ -32,14 +32,14 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ---------------- 购物界面：商品数据与渲染 ----------------
   const BASE_ITEMS = [
-    { id: 'food-coffee',    category: '食品',   name: '咖啡',   image: '/images/食品-咖啡.png',   classicDesc: '醇香口感，提神醒脑',            ecoDesc: '公平贸易咖啡豆，环保包装' },
-    { id: 'food-vegetable', category: '食品',   name: '蔬菜',   image: '/images/食品-蔬菜.png',   classicDesc: '新鲜采摘，营养均衡',            ecoDesc: '有机种植，更可持续' },
-    { id: 'textile-jacket', category: '纺织',   name: '冲锋衣', image: '/images/纺织-冲锋衣.png', classicDesc: '防风防雨，耐磨耐穿',            ecoDesc: '再生面料，降低环境足迹' },
-    { id: 'textile-bag',    category: '纺织',   name: '书包',   image: '/images/纺织-书包.png',   classicDesc: '大容量多隔层，轻便耐用',        ecoDesc: '回收纤维制成，绿色出行' },
-    { id: 'care-skin',      category: '个护',   name: '护肤',   image: '/images/个护-护肤.png',   classicDesc: '深层滋养，水润保湿',            ecoDesc: '天然配方，无动物实验' },
-    { id: 'care-soap',      category: '个护',   name: '香皂',   image: '/images/个护-皂.png',     classicDesc: '洁净去污，温和不刺激',          ecoDesc: '可降解成分，纸质外包装' },
-    { id: 'daily-clean1',   category: '日用',   name: '清洁剂A', image: '/images/日用-清洁1.png', classicDesc: '强效去渍，使用便捷',            ecoDesc: '植物基配方，对水体更友好' },
-    { id: 'daily-clean2',   category: '日用',   name: '清洁剂B', image: '/images/日用-清洁2.png', classicDesc: '快速清洁，气味清新',            ecoDesc: '低挥发无刺激，环保补充装' }
+    { id: 'food-coffee',    category: '食品',   name: '咖啡',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/food-coffee.png',   classicDesc: '醇香口感，提神醒脑',            ecoDesc: '公平贸易咖啡豆，环保包装' },
+    { id: 'food-vegetable', category: '食品',   name: '蔬菜',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/food-vegetables.png',   classicDesc: '新鲜采摘，营养均衡',            ecoDesc: '有机种植，更可持续' },
+    { id: 'textile-jacket', category: '纺织',   name: '冲锋衣', image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/textile-jacket.png', classicDesc: '防风防雨，耐磨耐穿',            ecoDesc: '再生面料，降低环境足迹' },
+    { id: 'textile-bag',    category: '纺织',   name: '书包',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/textile-backpack.png',   classicDesc: '大容量多隔层，轻便耐用',        ecoDesc: '回收纤维制成，绿色出行' },
+    { id: 'care-skin',      category: '个护',   name: '护肤',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/personal-care-skincare.png',   classicDesc: '深层滋养，水润保湿',            ecoDesc: '天然配方，无动物实验' },
+    { id: 'care-soap',      category: '个护',   name: '香皂',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/personal-care-soap.png',     classicDesc: '洁净去污，温和不刺激',          ecoDesc: '可降解成分，纸质外包装' },
+    { id: 'daily-clean1',   category: '日用',   name: '清洁剂A', image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/daily-cleaner-1.png', classicDesc: '强效去渍，使用便捷',            ecoDesc: '植物基配方，对水体更友好' },
+    { id: 'daily-clean2',   category: '日用',   name: '清洁剂B', image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/daily-cleaner-2.png', classicDesc: '快速清洁，气味清新',            ecoDesc: '低挥发无刺激，环保补充装' }
   ];
 
   // 展开为16个卡片：经典/环保两种文案，图片相同

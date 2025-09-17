@@ -97,7 +97,10 @@
   <section class="hero" style="background: linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));">
     <div>
       <p style="color:#2d7d32; font-size:1.2em; margin-bottom:16px;">轻松浏览并选择你喜欢的商品，完成一次简短的购物体验。</p>
-      <div class="tip" style="font-size:14px; line-height:1.5;">提示：点击“加入购物车”添加商品；右下角“购物车”可查看与移除；请从不同品类中选择共 3-5 件商品后点击“立即结算”，整个过程中不涉及真实支付。</div>
+      <div class="tip" style="font-size:18px; line-height:1.6; font-weight:600;">
+        提示：点击“加入购物车”添加商品；右下角“购物车”可查看或移除；<br>
+        请根据不同的商品描述，从四大品类中选择<strong>8件商品</strong>后点击“立即结算”，整个过程不涉及真实支付。
+      </div>
     </div>
   </section>
 
@@ -125,6 +128,14 @@
   <!-- 音频启动提示（适配移动端/浏览器自动播放策略） -->
   <div id="audio-gate" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;">
     <button id="audio-gate-btn" class="primary-btn" style="padding:14px 28px;border-radius:28px;background:linear-gradient(45deg,#81c784,#4db6ac);">点击开始播放音乐</button>
+  </div>
+
+  <!-- 不足 8 件提示模态框结构 -->
+  <div id="insufficient-backdrop" class="insufficient-backdrop"></div>
+  <div id="insufficient-modal" class="insufficient-modal">
+    <div class="title">温馨提示</div>
+    <div class="desc">您需要选择八件商品之后再结算。</div>
+    <div style="text-align:right;"><button id="insufficient-ok" class="btn">继续浏览</button></div>
   </div>
 
   <!-- 悬浮购物车模态框 -->
@@ -155,10 +166,21 @@
     .btn-ghost { background:#e5e7eb; color:#6b7280; }
     .muted { color:#7f8c8d; font-size:12px; }
   </style>
+  <!-- 不足 8 件提示模态框 -->
+  <style>
+    .insufficient-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; opacity:0; transition:opacity .2s ease; z-index:1400; }
+    .insufficient-backdrop.show { display:block; opacity:1; }
+    .insufficient-modal { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.98); width:520px; max-width:92vw; padding:20px; 
+      background:#fff; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.25); display:none; opacity:0; transition: opacity .2s ease, transform .2s ease; z-index:1401; }
+    .insufficient-modal.show { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
+    .insufficient-modal .title { font-weight:800; color:#1f2937; margin-bottom:8px; }
+    .insufficient-modal .desc { color:#475569; margin-bottom:16px; }
+    .insufficient-modal .btn { background:#334155; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; }
+  </style>
   <div class="cart-modal-backdrop" id="cart-modal-backdrop"></div>
   <div class="cart-modal" id="cart-modal">
     <header>
-      <strong>已选商品</strong>
+      <strong>已选商品（<span id="cart-title-count">0</span>/8）</strong>
       <button id="cart-close" class="btn btn-ghost small">关闭</button>
     </header>
     <div class="list" id="modal-list"></div>
@@ -182,9 +204,10 @@
     .floating-cart .fab { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; border:none; padding:16px 22px; border-radius:30px; box-shadow:0 16px 36px rgba(77,182,172,.35); cursor:pointer; font-size:16px; transition: transform .2s ease, box-shadow .2s ease; }
     .floating-cart .fab:hover { transform: translateY(-2px); box-shadow:0 22px 44px rgba(77,182,172,.45); }
     .floating-cart .fab.secondary { background:#334155; }
+    .floating-cart .badge { margin-left:8px; background:#0f172a; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; }
   </style>
   <div class="floating-cart">
-    <button id="fab-cart" class="fab">🛒 购物车</button>
+    <button id="fab-cart" class="fab">🛒 购物车 <span id="fab-count" class="badge">0</span></button>
     <button id="fab-checkout" class="fab secondary">立即结算</button>
   </div>
   <!-- Firebase CDN 与配置（需在 public/firebase-config.js 填写真实配置） -->

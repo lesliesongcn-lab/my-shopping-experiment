@@ -95,38 +95,38 @@ window.addEventListener('DOMContentLoaded', function() {
   // ---------------- 购物界面：商品数据与渲染 ----------------
   const BASE_ITEMS = [
     // 食品类
-    { id: 'food-coffee',    category: '食品',   name: '咖啡',     image: '/images/食品-咖啡.png',
+    { id: 'food-coffee',    category: '食品',   name: '咖啡',     image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/food-coffee.png',
       classicName: '“醇享”黄金烘焙咖啡豆', ecoName: '“雨林守护”公平贸易咖啡豆',
       classicDesc: '大师级风味： 精选高地豆，经精准黄金比例烘焙，呈现均衡而浓郁的黑巧克力与坚果风味。',
       ecoDesc: '有爱的好味道： 获公平贸易认证，确保咖农福祉，采用遮荫种植，保护雨林生态。', price: 59.0 },
-    { id: 'food-vegetable', category: '食品',   name: '蔬菜',     image: '/images/食品-蔬菜.png',
+    { id: 'food-vegetable', category: '食品',   name: '蔬菜',     image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/food-vegetables.png',
       classicName: '“鲜选”A级净菜沙拉包', ecoName: '“旬物”有机认证蔬菜篮',
       classicDesc: '便捷轻生活： 严选优质产区A级蔬菜，经过清洗、切配、杀菌，开袋即食，省心美味。',
       ecoDesc: '品尝自然本味： 当季有机种植蔬菜，无化学农药，减少环境负担，配送无塑料包装。', price: 29.0 },
     // 纺织类
-    { id: 'textile-jacket', category: '纺织',   name: '冲锋衣',   image: '/images/纺织-冲锋衣.png',
+    { id: 'textile-jacket', category: '纺织',   name: '冲锋衣',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/textile-jacket.png',
       classicName: '“山脊客”全能防风冲锋衣', ecoName: '“森呼吸”低碳环保冲锋衣',
       classicDesc: '专注户外性能： 采用高密度耐磨防风面料，轻便便携，无惧恶劣天气，助你畅快出行。',
       ecoDesc: '为地球减负： 采用再生尼龙面料，历经环保工艺制作，提供可靠防护的同时，减少碳排放。', price: 239.0 },
-    { id: 'textile-bag',    category: '纺织',   name: '书包',     image: '/images/纺织-书包.png',
+    { id: 'textile-bag',    category: '纺织',   name: '书包',     image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/textile-backpack.png',
       classicName: '“都市行者”多功能防水书包', ecoName: '“万物新生”再生材料书包',
       classicDesc: '轻松应对日常： 采用高性能防水面料，多隔层分区设计，兼顾超大容量与便利收纳。',
       ecoDesc: '背负有度： 包身主要面料由再生环保材料制成，结实耐用，赋予废弃资源新的生命。', price: 199.0 },
     // 个护类
-    { id: 'care-skin',      category: '个护',   name: '护肤',     image: '/images/个护-护肤.png',
+    { id: 'care-skin',      category: '个护',   name: '护肤',     image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/personal-care-skincare.png',
       classicName: '“焕能”多效修护乳液', ecoName: '“大地之选”植萃精华乳液',
       classicDesc: '精准护肤： 富含高活性复合成分，专注提亮、修护、保湿，解决多种肌肤问题。',
       ecoDesc: '肌肤与自然共呼吸： 核心成分为天然植物萃取，温和滋养，包装为可回收材质。', price: 129.0 },
-    { id: 'care-soap',      category: '个护',   name: '香皂',     image: '/images/个护-皂.png',
+    { id: 'care-soap',      category: '个护',   name: '香皂',     image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/personal-care-soap.png',
       classicName: '“毛孔专家”深层清洁洁面膏', ecoName: '“零塑计划”氨基酸洁面皂',
       classicDesc: '彻底净肤： 主打深层清洁与毛孔护理，泡沫绵密，有效卸除淡妆与多余油脂。',
       ecoDesc: '精简护肤： 植物基氨基酸配方，温和洁净，无塑包装，对环境友好，旅行便携。', price: 19.9 },
     // 日用品类
-    { id: 'daily-clean1',   category: '日用',   name: '洗衣液',   image: '/images/日用-清洁1.png',
+    { id: 'daily-clean1',   category: '日用',   name: '洗衣液',   image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/daily-cleaner-1.png',
       classicName: '“护色大师”防静电洗衣液', ecoName: '“简法”可补充装洗衣液',
       classicDesc: '科技护衣： 搞定清洁、柔顺、护色，防静电技术让衣物持久清新顺滑。',
       ecoDesc: '循环减塑： 购买补充装，减少塑料消耗。成分为植物基底，温和呵护衣物与肌肤。', price: 59.0 },
-    { id: 'daily-clean2',   category: '日用',   name: '家用清洁剂', image: '/images/日用-清洁2.png',
+    { id: 'daily-clean2',   category: '日用',   name: '家用清洁剂', image: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/daily-cleaner-2.png',
       classicName: '“油污克星”多用途浓缩清洁剂', ecoName: '“绿叶净”天然成分清洁剂',
       classicDesc: '一招致净： 强效去污配方，一瓶搞定厨房、浴室等多种场景的顽固污垢，省时省力。',
       ecoDesc: '源自自然： 萃取天然植物活性成分，高效去油的同时，生物降解度高，减少水体负担。', price: 39.0 }
@@ -214,6 +214,14 @@ window.addEventListener('DOMContentLoaded', function() {
   function renderCart() {
     const countEl = document.getElementById('cart-count');
     if (countEl) countEl.textContent = String(state.selectedItems.length);
+
+    // 同步更新模态标题中的数量显示
+    const cartTitleCount = document.getElementById('cart-title-count');
+    if (cartTitleCount) cartTitleCount.textContent = String(state.selectedItems.length);
+
+    // 更新右下角悬浮按钮徽标
+    const fabCount = document.getElementById('fab-count');
+    if (fabCount) fabCount.textContent = String(state.selectedItems.length);
   }
 
   function renderDrawer(){
@@ -397,6 +405,8 @@ window.addEventListener('DOMContentLoaded', function() {
       });
     }
     if (modal && modalBackdrop){
+      const titleCount = document.getElementById('cart-title-count');
+      if (titleCount) titleCount.textContent = String(state.selectedItems.length);
       modal.style.display = 'flex';
       modalBackdrop.style.display = 'block';
       // 触发过渡
@@ -438,16 +448,24 @@ window.addEventListener('DOMContentLoaded', function() {
     // 如果当前是普通模式，切换到确认模式；若已是确认模式则提交
     const confirmMode = modalThink && modalThink.style.display !== 'none';
     if (!confirmMode) {
+      // 先检查是否达到 8 件
+      if (state.selectedItems.length < 8) {
+        showInsufficientModal();
+        return;
+      }
       openDrawer(true);
       return;
     }
+    // 确认提交前再次校验
+    if (state.selectedItems.length < 8) { showInsufficientModal(); return; }
     closeDrawer();
     document.getElementById('finish-btn').click();
   });
 
   const checkoutBtn = document.getElementById('drawer-checkout');
   if (checkoutBtn) checkoutBtn.addEventListener('click', async ()=>{
-    // 直接触发完成逻辑
+    // 提交前检查 8 件限制
+    if (state.selectedItems.length < 8) { showInsufficientModal(); return; }
     document.getElementById('finish-btn').click();
   });
 
@@ -484,4 +502,19 @@ window.addEventListener('DOMContentLoaded', function() {
       });
     }
   }
+
+  // --------- 不足 8 件提示模态逻辑 ---------
+  const insuffBackdrop = document.getElementById('insufficient-backdrop');
+  const insuffModal = document.getElementById('insufficient-modal');
+  const insuffOk = document.getElementById('insufficient-ok');
+  function showInsufficientModal(){
+    if (insuffBackdrop) insuffBackdrop.classList.add('show');
+    if (insuffModal) insuffModal.classList.add('show');
+  }
+  function hideInsufficientModal(){
+    if (insuffBackdrop) insuffBackdrop.classList.remove('show');
+    if (insuffModal) insuffModal.classList.remove('show');
+  }
+  if (insuffBackdrop) insuffBackdrop.addEventListener('click', hideInsufficientModal);
+  if (insuffOk) insuffOk.addEventListener('click', hideInsufficientModal);
 });

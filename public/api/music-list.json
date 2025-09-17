@@ -1,14 +1,8 @@
 {
   "nostalgia": [
-    "/music/nostalgia/5音 - 青花瓷 (钢琴版) .mp3",
-    "/music/nostalgia/黄家驹 - 光辉岁月1.mp3",
-    "/music/nostalgia/筷子兄弟 - 小苹果 .mp3",
-    "/music/nostalgia/逆战 2.mp3",
-    "/music/nostalgia/王铮亮 - 时间都去哪儿了 .mp3"
+    "https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/music/nostalgia/glorious-years-Beyond.mp3"
   ],
   "neutral": [
-    "/music/neutral/怪盗V - 《童年回忆》.mp3",
-    "/music/neutral/刘志成 - 冬之曲 .mp3",
-    "/music/neutral/田源 - 乌梅子酱 2.mp3"
+    "https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/music/neutral/june-lang-lang.mp3"
   ]
 }

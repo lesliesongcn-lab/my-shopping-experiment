@@ -59,7 +59,8 @@
         
         // 计算绿色消费比例：eco_selected / 16
         const ecoSelected = Number(row.eco_selected) || 0;
-        const greenRatio = (ecoSelected / 16 * 100).toFixed(2);
+        const totalSelected = Number(row.eco_selected || 0) + Number(row.classic_selected || 0);
+        const greenRatio = (totalSelected > 0 ? (ecoSelected / totalSelected * 100) : 0).toFixed(2);
         
         tr.innerHTML = `
           <td>${row.received_at || ''}</td>

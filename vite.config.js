@@ -10,8 +10,13 @@ export default defineConfig({
     // 确保使用 http://localhost:5174/ 打开时也能获取音乐清单
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.error('[vite proxy] /api error:', err.message || err);
+          });
+        }
       }
     }
   },

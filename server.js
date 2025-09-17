@@ -6,8 +6,25 @@ const app = express();
 // 解析 JSON 请求体
 app.use(express.json());
 
-// 设置静态文件目录
+// 设置静态文件目录（默认静态资源）
 app.use(express.static(path.join(__dirname, 'public')));
+// 针对图片增加强缓存
+app.use('/images', express.static(path.join(__dirname, 'public', 'images'), {
+  setHeaders: (res) => {
+    res.set('Cache-Control', 'public, max-age=2592000, immutable'); // 30天
+  }
+}));
+// 针对音乐资源：设置正确的类型、跨域、分段与缓存
+app.use('/music', express.static(path.join(__dirname, 'public', 'music'), {
+  setHeaders: (res, filePath) => {
+    if (/\.mp3$/i.test(filePath)) {
+      res.set('Content-Type', 'audio/mpeg');
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Accept-Ranges', 'bytes');
+      res.set('Cache-Control', 'public, max-age=2592000, immutable');
+    }
+  }
+}));
 // 额外暴露 /src 以便加载样式与静态资源（如 /src/css/main.css）
 app.use('/src', express.static(path.join(__dirname, 'src')));
 
@@ -97,26 +114,17 @@ function appendData(record) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(all, null, 2), 'utf8');
 }
 
-// 音乐清单接口：返回 public/music/{nostalgia,neutral} 下的 mp3 列表
+// 音乐清单接口：改为返回 OSS 上的直链（每组一首，前端单曲循环）
 app.get('/api/music-list', (req, res) => {
-  const baseDir = path.join(__dirname, 'public', 'music');
-  const readGroup = (group) => {
-    try {
-      const dir = path.join(baseDir, group);
-      const files = fs.readdirSync(dir, { withFileTypes: true })
-        .filter(d => d.isFile())
-        .map(d => d.name)
-        .filter(name => /\.mp3$/i.test(name))
-        .map(name => `/music/${group}/${name}`);
-      return files;
-    } catch (e) {
-      return [];
-    }
+  const oss = {
+    neutral: [
+      'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/music/neutral/june-lang-lang.mp3'
+    ],
+    nostalgia: [
+      'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/music/nostalgia/glorious-years-Beyond.mp3'
+    ]
   };
-  res.json({
-    nostalgia: readGroup('nostalgia'),
-    neutral: readGroup('neutral')
-  });
+  res.json(oss);
 });
 
 // 管理端与数据读取接口保护（写入接口不鉴权，便于前端提交）
@@ -238,9 +246,14 @@ app.get('/api/experiment-export.csv', (req, res) => {
       const durationSec = r.purchase_duration_ms ? (r.purchase_duration_ms / 1000).toFixed(2) : '';
       const musicInterrupted = r.music_interrupted === true ? 1 : 0;
       
-      // 重新计算绿色消费比例：eco_selected / 16
-      const ecoSelected = Number(r.eco_selected) || 0;
-      const greenRatio = (ecoSelected / 16).toFixed(4);
+      // 统一用 selected_items 重新计算（更稳妥，避免旧字段干扰）
+      const items = Array.isArray(r.selected_items) ? r.selected_items : [];
+      const ecoFromItems = items.filter(id => /\-eco$/i.test(id)).length;
+      const classicFromItems = items.length - ecoFromItems;
+      const ecoSelected = ecoFromItems;
+      const classicSelected = classicFromItems;
+      const denom = ecoSelected + classicSelected;
+      const greenRatio = (denom > 0 ? (ecoSelected / denom) : 0).toFixed(4);
       
       const row = [
         // 1.1 被试基本信息
@@ -252,8 +265,8 @@ app.get('/api/experiment-export.csv', (req, res) => {
         // 1.2 实验表现
         JSON.stringify(durationSec),
         JSON.stringify(r.total_price || 0),
-        JSON.stringify(r.eco_selected || 0),
-        JSON.stringify(r.classic_selected || 0),
+        JSON.stringify(ecoSelected),
+        JSON.stringify(classicSelected),
         JSON.stringify(greenRatio),
         // 1.3 操作检查
         JSON.stringify(r.device_type || ''),
@@ -263,6 +276,7 @@ app.get('/api/experiment-export.csv', (req, res) => {
       lines.push(row.join(','));
     });
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Content-Disposition', 'attachment; filename="participant-level-export.csv"');
     res.send('\uFEFF' + lines.join('\n'));
   } catch (error) {
@@ -331,6 +345,7 @@ app.get('/api/product-level-export.csv', (req, res) => {
     });
     
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Content-Disposition', 'attachment; filename="item-level-export.csv"');
     res.send('\uFEFF' + lines.join('\n'));
   } catch (error) {

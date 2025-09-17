@@ -1,1 +1,378 @@
-[]
+[
+  {
+    "_id": "mfdyfmpfqngs8a",
+    "received_at": "2025-09-10T12:27:21.651Z",
+    "ip": "::1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "participant_id": "P20250910202708",
+    "gender": "male",
+    "music_condition": "nostalgia",
+    "music_track": "/music/nostalgia/5音 - 青花瓷 (钢琴版) .mp3",
+    "music_start_time": 1757507229053,
+    "music_interrupted": false,
+    "music_interrupted_at": null,
+    "selected_items": [
+      "food-coffee-classic",
+      "food-vegetable-eco",
+      "textile-jacket-eco",
+      "textile-bag-eco",
+      "care-skin-eco",
+      "care-soap-eco",
+      "daily-clean1-eco",
+      "daily-clean2-classic"
+    ],
+    "selected_categories": [
+      "食品",
+      "纺织",
+      "个护",
+      "日用"
+    ],
+    "product_choices": [
+      {
+        "product_id": "food-coffee-classic",
+        "base_id": "food-coffee",
+        "category": "食品",
+        "variant": "classic",
+        "name": "“醇享”黄金烘焙咖啡豆",
+        "price": 59,
+        "selected": 1
+      },
+      {
+        "product_id": "food-coffee-eco",
+        "base_id": "food-coffee",
+        "category": "食品",
+        "variant": "eco",
+        "name": "“雨林守护”公平贸易咖啡豆",
+        "price": 59,
+        "selected": 0
+      },
+      {
+        "product_id": "food-vegetable-classic",
+        "base_id": "food-vegetable",
+        "category": "食品",
+        "variant": "classic",
+        "name": "“鲜选”A级净菜沙拉包",
+        "price": 29,
+        "selected": 0
+      },
+      {
+        "product_id": "food-vegetable-eco",
+        "base_id": "food-vegetable",
+        "category": "食品",
+        "variant": "eco",
+        "name": "“旬物”有机认证蔬菜篮",
+        "price": 29,
+        "selected": 1
+      },
+      {
+        "product_id": "textile-jacket-classic",
+        "base_id": "textile-jacket",
+        "category": "纺织",
+        "variant": "classic",
+        "name": "“山脊客”全能防风冲锋衣",
+        "price": 239,
+        "selected": 0
+      },
+      {
+        "product_id": "textile-jacket-eco",
+        "base_id": "textile-jacket",
+        "category": "纺织",
+        "variant": "eco",
+        "name": "“森呼吸”低碳环保冲锋衣",
+        "price": 239,
+        "selected": 1
+      },
+      {
+        "product_id": "textile-bag-classic",
+        "base_id": "textile-bag",
+        "category": "纺织",
+        "variant": "classic",
+        "name": "“都市行者”多功能防水书包",
+        "price": 199,
+        "selected": 0
+      },
+      {
+        "product_id": "textile-bag-eco",
+        "base_id": "textile-bag",
+        "category": "纺织",
+        "variant": "eco",
+        "name": "“万物新生”再生材料书包",
+        "price": 199,
+        "selected": 1
+      },
+      {
+        "product_id": "care-skin-classic",
+        "base_id": "care-skin",
+        "category": "个护",
+        "variant": "classic",
+        "name": "“焕能”多效修护乳液",
+        "price": 129,
+        "selected": 0
+      },
+      {
+        "product_id": "care-skin-eco",
+        "base_id": "care-skin",
+        "category": "个护",
+        "variant": "eco",
+        "name": "“大地之选”植萃精华乳液",
+        "price": 129,
+        "selected": 1
+      },
+      {
+        "product_id": "care-soap-classic",
+        "base_id": "care-soap",
+        "category": "个护",
+        "variant": "classic",
+        "name": "“毛孔专家”深层清洁洁面膏",
+        "price": 19.9,
+        "selected": 0
+      },
+      {
+        "product_id": "care-soap-eco",
+        "base_id": "care-soap",
+        "category": "个护",
+        "variant": "eco",
+        "name": "“零塑计划”氨基酸洁面皂",
+        "price": 19.9,
+        "selected": 1
+      },
+      {
+        "product_id": "daily-clean1-classic",
+        "base_id": "daily-clean1",
+        "category": "日用",
+        "variant": "classic",
+        "name": "“护色大师”防静电洗衣液",
+        "price": 59,
+        "selected": 0
+      },
+      {
+        "product_id": "daily-clean1-eco",
+        "base_id": "daily-clean1",
+        "category": "日用",
+        "variant": "eco",
+        "name": "“简法”可补充装洗衣液",
+        "price": 59,
+        "selected": 1
+      },
+      {
+        "product_id": "daily-clean2-classic",
+        "base_id": "daily-clean2",
+        "category": "日用",
+        "variant": "classic",
+        "name": "“油污克星”多用途浓缩清洁剂",
+        "price": 39,
+        "selected": 1
+      },
+      {
+        "product_id": "daily-clean2-eco",
+        "base_id": "daily-clean2",
+        "category": "日用",
+        "variant": "eco",
+        "name": "“绿叶净”天然成分清洁剂",
+        "price": 39,
+        "selected": 0
+      }
+    ],
+    "eco_selected": 6,
+    "classic_selected": 2,
+    "green_ratio": 0.75,
+    "subjectInfo": {
+      "id": "P20250910202708",
+      "nameAbbr": "NA",
+      "gender": "male",
+      "ageRange": "36-45",
+      "education": "highschool_or_below"
+    },
+    "ageRange": "36-45",
+    "education": "highschool_or_below",
+    "purchase_duration_ms": 12691,
+    "total_price": 772.9,
+    "platform": "Win32",
+    "device_type": "desktop",
+    "screen_width": 1920,
+    "screen_height": 1080,
+    "viewport_width": 1920,
+    "viewport_height": 911
+  },
+  {
+    "_id": "mfm7ygq7pp2bs0",
+    "received_at": "2025-09-16T07:16:06.319Z",
+    "ip": "::ffff:127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "participant_id": "P20250916151106",
+    "gender": "male",
+    "music_condition": "neutral",
+    "music_track": "/music/neutral/六月船歌 - 郎朗.mp3",
+    "music_start_time": 1758006666128,
+    "music_interrupted": false,
+    "music_interrupted_at": null,
+    "selected_items": [],
+    "selected_categories": [],
+    "product_choices": [
+      {
+        "product_id": "food-coffee-classic",
+        "base_id": "food-coffee",
+        "category": "食品",
+        "variant": "classic",
+        "name": "“醇享”黄金烘焙咖啡豆",
+        "price": 59,
+        "selected": 0
+      },
+      {
+        "product_id": "food-coffee-eco",
+        "base_id": "food-coffee",
+        "category": "食品",
+        "variant": "eco",
+        "name": "“雨林守护”公平贸易咖啡豆",
+        "price": 59,
+        "selected": 0
+      },
+      {
+        "product_id": "food-vegetable-classic",
+        "base_id": "food-vegetable",
+        "category": "食品",
+        "variant": "classic",
+        "name": "“鲜选”A级净菜沙拉包",
+        "price": 29,
+        "selected": 0
+      },
+      {
+        "product_id": "food-vegetable-eco",
+        "base_id": "food-vegetable",
+        "category": "食品",
+        "variant": "eco",
+        "name": "“旬物”有机认证蔬菜篮",
+        "price": 29,
+        "selected": 0
+      },
+      {
+        "product_id": "textile-jacket-classic",
+        "base_id": "textile-jacket",
+        "category": "纺织",
+        "variant": "classic",
+        "name": "“山脊客”全能防风冲锋衣",
+        "price": 239,
+        "selected": 0
+      },
+      {
+        "product_id": "textile-jacket-eco",
+        "base_id": "textile-jacket",
+        "category": "纺织",
+        "variant": "eco",
+        "name": "“森呼吸”低碳环保冲锋衣",
+        "price": 239,
+        "selected": 0
+      },
+      {
+        "product_id": "textile-bag-classic",
+        "base_id": "textile-bag",
+        "category": "纺织",
+        "variant": "classic",
+        "name": "“都市行者”多功能防水书包",
+        "price": 199,
+        "selected": 0
+      },
+      {
+        "product_id": "textile-bag-eco",
+        "base_id": "textile-bag",
+        "category": "纺织",
+        "variant": "eco",
+        "name": "“万物新生”再生材料书包",
+        "price": 199,
+        "selected": 0
+      },
+      {
+        "product_id": "care-skin-classic",
+        "base_id": "care-skin",
+        "category": "个护",
+        "variant": "classic",
+        "name": "“焕能”多效修护乳液",
+        "price": 129,
+        "selected": 0
+      },
+      {
+        "product_id": "care-skin-eco",
+        "base_id": "care-skin",
+        "category": "个护",
+        "variant": "eco",
+        "name": "“大地之选”植萃精华乳液",
+        "price": 129,
+        "selected": 0
+      },
+      {
+        "product_id": "care-soap-classic",
+        "base_id": "care-soap",
+        "category": "个护",
+        "variant": "classic",
+        "name": "“毛孔专家”深层清洁洁面膏",
+        "price": 19.9,
+        "selected": 0
+      },
+      {
+        "product_id": "care-soap-eco",
+        "base_id": "care-soap",
+        "category": "个护",
+        "variant": "eco",
+        "name": "“零塑计划”氨基酸洁面皂",
+        "price": 19.9,
+        "selected": 0
+      },
+      {
+        "product_id": "daily-clean1-classic",
+        "base_id": "daily-clean1",
+        "category": "日用",
+        "variant": "classic",
+        "name": "“护色大师”防静电洗衣液",
+        "price": 59,
+        "selected": 0
+      },
+      {
+        "product_id": "daily-clean1-eco",
+        "base_id": "daily-clean1",
+        "category": "日用",
+        "variant": "eco",
+        "name": "“简法”可补充装洗衣液",
+        "price": 59,
+        "selected": 0
+      },
+      {
+        "product_id": "daily-clean2-classic",
+        "base_id": "daily-clean2",
+        "category": "日用",
+        "variant": "classic",
+        "name": "“油污克星”多用途浓缩清洁剂",
+        "price": 39,
+        "selected": 0
+      },
+      {
+        "product_id": "daily-clean2-eco",
+        "base_id": "daily-clean2",
+        "category": "日用",
+        "variant": "eco",
+        "name": "“绿叶净”天然成分清洁剂",
+        "price": 39,
+        "selected": 0
+      }
+    ],
+    "eco_selected": 0,
+    "classic_selected": 0,
+    "green_ratio": 0,
+    "subjectInfo": {
+      "id": "P20250916151106",
+      "nameAbbr": "NA",
+      "gender": "male",
+      "ageRange": "36-45",
+      "education": "highschool_or_below"
+    },
+    "ageRange": "36-45",
+    "education": "highschool_or_below",
+    "purchase_duration_ms": 300015,
+    "total_price": 0,
+    "platform": "Win32",
+    "device_type": "desktop",
+    "screen_width": 1920,
+    "screen_height": 1080,
+    "viewport_width": 1745,
+    "viewport_height": 828
+  }
+]

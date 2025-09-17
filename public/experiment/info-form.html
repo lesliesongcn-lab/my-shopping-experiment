@@ -246,21 +246,34 @@
         ageRange: document.getElementById('age-range').value,
         education: document.getElementById('education').value
       };
-      // 轮流分配：向后端请求分组，同时自动生成被试编号
+      // 分组：优先向后端请求分组；失败则在本地交替分配，确保近似 50/50
       try {
         const res = await fetch('/api/assign-group', { cache: 'no-store' });
         const json = await res.json();
         if (json && json.participant_id) {
           subjectId = json.participant_id;
         }
-        const group = (json && (json.group === 'nostalgia' || json.group === 'neutral')) ? json.group : (Math.random() < 0.5 ? 'neutral' : 'nostalgia');
+        const group = (json && (json.group === 'nostalgia' || json.group === 'neutral')) ? json.group : (function(){
+          try {
+            const last = localStorage.getItem('lastAssignedGroup');
+            const next = (last === 'neutral') ? 'nostalgia' : 'neutral';
+            localStorage.setItem('lastAssignedGroup', next);
+            return next;
+          } catch(_) { return (Math.random() < 0.5 ? 'neutral' : 'nostalgia'); }
+        })();
         // 保存最终 subjectId
         subjectData.id = subjectId;
         localStorage.setItem('subjectInfo', JSON.stringify(subjectData));
         localStorage.setItem('musicGroup', group);
         window.location.href = '/experiment/shopping-task.html?group=' + encodeURIComponent(group);
       } catch (err) {
-        const fallback = Math.random() < 0.5 ? 'neutral' : 'nostalgia';
+        // 本地交替兜底
+        let fallback = 'neutral';
+        try {
+          const last = localStorage.getItem('lastAssignedGroup');
+          fallback = (last === 'neutral') ? 'nostalgia' : 'neutral';
+          localStorage.setItem('lastAssignedGroup', fallback);
+        } catch(_) { fallback = (Math.random() < 0.5 ? 'neutral' : 'nostalgia'); }
         // 离线兜底生成ID
         if (!subjectId) {
           const now = new Date();
