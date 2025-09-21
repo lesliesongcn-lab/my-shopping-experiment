@@ -108,7 +108,7 @@
     <div class="qr-code" id="qrcode">
       <div class="loading">正在生成二维码...</div>
     </div>
-    <div class="url-text" id="url-display">http://47.86.24.59:3000/</div>
+    <div class="url-text" id="url-display"></div>
     <div class="instructions">
       <strong>使用说明：</strong><br>
       1. 用手机扫描上方二维码<br>
@@ -120,7 +120,9 @@
   </div>
 
   <script>
-    const targetUrl = 'http://47.86.24.59:3000/';
+    // 自动检测当前环境，本地测试时使用localhost，部署时使用服务器IP
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const targetUrl = isLocalhost ? 'http://localhost:3000/' : 'http://47.86.24.59:3000/';
     
     // 简单的二维码生成器（基于Google Chart API）
     function generateQRCode() {
@@ -281,11 +283,16 @@
     // 页面加载完成后生成二维码
     document.addEventListener('DOMContentLoaded', function() {
       console.log('页面加载完成，开始生成二维码');
+      
+      // 显示当前URL
+      const urlDisplay = document.getElementById('url-display');
+      if (urlDisplay) {
+        urlDisplay.textContent = targetUrl;
+      }
+      
       generateQRCode();
     });
     
-    // 显示完整URL
-    document.getElementById('url-display').textContent = targetUrl;
   </script>
 </body>
 </html>

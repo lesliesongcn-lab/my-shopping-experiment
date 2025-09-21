@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>购物模拟平台</title>
   <link rel="stylesheet" href="../src/css/main.css">
   <link rel="stylesheet" href="../src/css/forms.css">
@@ -48,8 +47,9 @@
       padding: 0 16px;
     }
     
-    /* 分类筛选器 */
+    /* 分类筛选器 - 默认隐藏，只在移动端显示 */
     .category-filter {
+      display: none;
       background: #fff;
       padding: 16px;
       margin: 16px auto;
@@ -58,43 +58,50 @@
       max-width: 1200px;
     }
     
-    .category-tabs {
+    .category-filter .category-tabs {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
     
-    .category-tab {
-      background: #f8f9fa;
-      color: #6c757d;
-      border: none;
-      padding: 10px 20px;
+    .category-filter .category-tab {
+      padding: 8px 16px;
+      border: 1px solid #e5e7eb;
       border-radius: 20px;
+      background: #fff;
+      color: #6b7280;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
       transition: all 0.2s ease;
+      font-size: 14px;
     }
     
-    .category-tab.active {
-      background: linear-gradient(45deg, #81c784, #4db6ac);
+    .category-filter .category-tab.active,
+    .category-filter .category-tab:hover {
+      background: #81c784;
       color: #fff;
-      box-shadow: 0 4px 12px rgba(77,182,172,.3);
+      border-color: #81c784;
     }
-    
-    .category-tab:hover:not(.active) {
-      background: #e9ecef;
-      color: #495057;
-    }
-    
+
     /* 移动端适配 */
     @media (max-width: 768px) {
       .main-container {
         grid-template-columns: 1fr;
         gap: 16px;
         padding: 0 12px;
-        margin: 12px auto 80px auto; /* 增加底部边距避免被悬浮按钮遮挡 */
+        margin: 12px auto 80px auto;
+      }
+      
+      /* 移动端显示分类筛选器 */
+      .category-filter {
+        display: block;
+        margin: 12px auto;
+        padding: 12px;
+      }
+      
+      /* 移动端隐藏左侧边栏 */
+      .sidebar {
+        display: none;
       }
       
       .shop-header {
@@ -133,25 +140,11 @@
         padding: 12px;
       }
       
-      .category-filter {
-        margin: 12px auto;
-        padding: 12px;
-      }
-      
-      .category-tabs {
-        gap: 6px;
-      }
-      
-      .category-tab {
-        padding: 8px 16px;
-        font-size: 13px;
-      }
-      
       .product-card {
         flex-direction: column;
         gap: 12px;
         padding: 16px;
-        position: relative; /* 为按钮定位做准备 */
+        position: relative;
       }
       
       .product-card img {
@@ -163,21 +156,17 @@
       .p-right {
         text-align: center;
         min-width: auto;
-        position: relative; /* 为按钮定位做准备 */
+        padding-bottom: 35px;
       }
       
       .primary-btn {
         position: absolute;
         bottom: 8px;
         right: 8px;
-        padding: 6px 10px;
-        font-size: 11px;
-        border-radius: 12px;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 16px;
         z-index: 10;
-      }
-      
-      .p-right {
-        padding-bottom: 35px; /* 为按钮留出空间 */
       }
       
       .floating-cart {
@@ -196,26 +185,16 @@
         height: 80vh;
       }
       
-      /* 修复购物车模态框按钮遮挡问题 */
-      .cart-modal footer {
-        padding: 16px;
-        margin-bottom: 0;
-      }
-      
-      .action-row {
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      
-      .btn {
-        flex: 1;
-        min-width: 80px;
-      }
-      
       .insufficient-modal,
       .over-limit-modal {
         width: 90vw;
         padding: 16px;
+      }
+      
+      .btn.small {
+        padding: 6px 10px;
+        border-radius: 12px;
+        font-size: 12px;
       }
     }
     .sidebar {
@@ -270,13 +249,13 @@
     <div>
       <p style="color:#2d7d32; font-size:1.2em; margin-bottom:16px;">轻松浏览并选择你喜欢的商品，完成一次简短的购物体验。</p>
       <div class="tip" style="font-size:18px; line-height:1.6; font-weight:600;">
-        提示：点击"加入购物车"添加商品；右下角"购物车"可查看或移除；<br>
-        请根据不同的商品描述，从四大品类中选择<strong>8件商品</strong>后点击"立即结算"，整个过程不涉及真实支付。
+        提示：点击“加入购物车”添加商品；右下角“购物车”可查看或移除；<br>
+        请根据不同的商品描述，从四大品类中选择<strong>8件商品</strong>后点击“立即结算”，整个过程不涉及真实支付。
       </div>
     </div>
   </section>
 
-  <!-- 分类筛选器 -->
+  <!-- 分类筛选器（仅移动端显示） -->
   <div class="category-filter">
     <div class="category-tabs">
       <button class="category-tab active" data-category="all">全部</button>
@@ -355,7 +334,7 @@
     .cart-modal footer { padding:12px 16px; border-top:1px solid rgba(56,178,172,.25); background: linear-gradient(0deg, rgba(255,255,255,0.35), rgba(255,255,255,0.10)); }
     .action-row { display:flex; gap:12px; justify-content:flex-end; }
     .btn { border:none; border-radius:24px; padding:10px 16px; cursor:pointer; }
-    .btn.small { padding:4px 8px; border-radius:12px; font-size:11px; }
+    .btn.small { padding:8px 12px; border-radius:18px; font-size:13px; }
     .btn-primary { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; }
     .btn-ghost { background:#e5e7eb; color:#6b7280; }
     .muted { color:#7f8c8d; font-size:12px; }
