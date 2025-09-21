@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>完成 - 购物模拟平台</title>
+  <link rel="stylesheet" href="/src/css/main.css">
+  <link rel="stylesheet" href="/src/css/forms.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #c8e6c9 0%, #b0ecef 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Microsoft YaHei', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      padding: 50px 40px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: float 6s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    h1 {
+      color: #2c3e50;
+      font-weight: 700;
+      margin-bottom: 20px;
+      font-size: 2.2em;
+    }
+    
+         .end-icon {
+       font-size: 3em;
+       margin-bottom: 20px;
+       color: #a2caee;
+     }
+    
+    p {
+      color: #7f8c8d;
+      font-size: 1.1em;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    
+         .primary-btn {
+       background: linear-gradient(45deg, #a2caee, #b0ecef);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.2em;
+      padding: 15px 0;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 600;
+             box-shadow: 0 10px 20px rgba(162, 202, 238, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .primary-btn:hover {
+      transform: translateY(-2px);
+             box-shadow: 0 15px 30px rgba(162, 202, 238, 0.4);
+    }
+    
+    .primary-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .primary-btn:hover::before {
+      left: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="end-icon">🎉</div>
+    <h1>感谢您的参与！</h1>
+    <p>您的实验数据已成功提交。<br>如有疑问请联系研究人员。<br>祝您生活愉快！</p>
+    <a href="/" class="primary-btn">返回首页</a>
+  </div>
+</body>
+</html>

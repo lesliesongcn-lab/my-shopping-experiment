@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>购物模拟平台</title>
+  <link rel="stylesheet" href="../src/css/main.css">
+  <link rel="stylesheet" href="../src/css/forms.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #c8e6c9 0%, #b0ecef 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Microsoft YaHei', sans-serif;
+    }
+    .shop-header {
+      max-width: 1100px;
+      margin: 24px auto 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .logo { font-weight: 900; letter-spacing: 1px; color: #2f855a; font-size: 30px; text-transform: uppercase; font-style: italic; }
+    .logo span.leaf { color:#38a169; margin-left:4px; }
+    .header-actions { display:flex; align-items:center; gap:16px; color:#2c3e50; }
+    .timer { color:#3498db; font-weight:600; }
+    .cart-indicator { background:#fff; padding:6px 12px; border-radius:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); cursor:pointer; user-select:none; }
+    .hero {
+      max-width: 1100px;
+      margin: 16px auto 0 auto;
+      padding: 24px 24px;
+      border-radius: 16px;
+      background: linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+      box-shadow: 0 20px 40px rgba(0,0,0,0.10);
+      display:flex; align-items:center; justify-content:space-between; gap:24px; position:relative; overflow:hidden;
+    }
+    .hero::after { content:''; position:absolute; inset:-60px; background:radial-gradient(600px 200px at 0% 0%, rgba(129,199,132,0.10), transparent 60%), radial-gradient(500px 180px at 100% 100%, rgba(77,182,172,0.12), transparent 60%); filter: blur(10px); }
+    .hero h1 { margin:0; color:#e67e22; letter-spacing:1px; }
+    .hero p { margin:6px 0 0 0; color:#7f8c8d; }
+    .main-container {
+      max-width: 1100px;
+      margin: 16px auto 40px auto;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 24px;
+      padding: 0 16px;
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0 12px;
+        margin: 12px auto 20px auto;
+      }
+      
+      .shop-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 12px;
+        margin: 16px auto 0 auto;
+      }
+      
+      .header-actions {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+      
+      .hero {
+        margin: 12px auto 0 auto;
+        padding: 16px;
+      }
+      
+      .hero h1 {
+        font-size: 1.5em;
+      }
+      
+      .hero p {
+        font-size: 1em;
+      }
+      
+      .sidebar {
+        order: 2;
+        padding: 12px;
+      }
+      
+      .content {
+        order: 1;
+        padding: 12px;
+      }
+      
+      .product-card {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+      }
+      
+      .product-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+      
+      .p-right {
+        text-align: center;
+        min-width: auto;
+      }
+      
+      .floating-cart {
+        right: 16px;
+        bottom: 20px;
+        gap: 12px;
+      }
+      
+      .floating-cart .fab {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .cart-modal {
+        width: 95vw;
+        height: 80vh;
+      }
+      
+      .insufficient-modal,
+      .over-limit-modal {
+        width: 90vw;
+        padding: 16px;
+      }
+    }
+    .sidebar {
+      background:#fff; border-radius:12px; padding:16px; box-shadow:0 10px 20px rgba(0,0,0,0.06);
+    }
+    .sidebar h3 { margin:0 0 12px 0; color:#2c3e50; }
+    .category-list { list-style:none; padding:0; margin:0; }
+    .category-list li { padding:10px 12px; border-radius:8px; cursor:pointer; color:#34495e; }
+    .category-list li.active, .category-list li:hover { background:#eafaf1; color:#2c3e50; }
+    .content { background:#fff; border-radius:12px; padding:16px; box-shadow:0 18px 36px rgba(0,0,0,0.08); position:relative; }
+    .controls { display:flex; gap:12px; align-items:center; justify-content:flex-start; margin-bottom:12px; }
+    .controls select { padding:6px 10px; border-radius:8px; border:1px solid #e0e0e0; }
+    .product-list { display: grid; gap: 14px; }
+    .product-card { display:flex; gap:16px; align-items:center; border:1px solid #f0f0f0; border-radius:14px; padding:12px; background:#fff; box-shadow:0 10px 24px rgba(2,6,23,.06); transform: translateY(0); transition: transform .25s ease, box-shadow .25s ease; }
+    .product-card:hover { transform: translateY(-3px); box-shadow:0 18px 40px rgba(2,6,23,.10); }
+    .product-card img { width:220px; height:120px; object-fit:cover; border-radius:10px; background:#fafafa; }
+    .p-mid { flex:1; }
+    .p-mid .title { font-weight:700; color:#2c3e50; }
+    .p-mid .desc { color:#7f8c8d; font-size:13px; margin-top:4px; }
+    .p-right { text-align:right; min-width:160px; }
+    .price { color:#e67e22; font-weight:800; margin-bottom:8px; display:block; }
+    .primary-btn { background: linear-gradient(45deg, #81c784, #4db6ac); color:#fff; border:none; padding:10px 18px; border-radius:24px; cursor:pointer; box-shadow:0 8px 18px rgba(77,182,172,.35); transition: transform .2s ease, box-shadow .2s ease; }
+    .primary-btn:hover { transform: translateY(-2px); box-shadow:0 12px 24px rgba(77,182,172,.45); }
+    .finish-bar { margin-top:16px; text-align:right; }
+    .music-note { color:#95a5a6; font-size:12px; }
+    /* 购物车抽屉 */
+    .cart-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; z-index:1000; }
+    .cart-drawer { position:fixed; right:-460px; top:0; width:420px; height:100vh; background:#fff; box-shadow:-12px 0 24px rgba(0,0,0,0.15); z-index:1001; transition:right .25s ease; display:flex; flex-direction:column; }
+    .cart-drawer.show { right:0; }
+    .cart-backdrop.show { display:block; }
+    .cart-drawer header { padding:16px; border-bottom:1px solid #eee; font-weight:700; display:flex; align-items:center; justify-content:space-between; }
+    .cart-drawer .list { flex:1; overflow:auto; padding:12px 16px; }
+    .cart-item { display:flex; gap:10px; align-items:center; padding:8px 0; border-bottom:1px dashed #f0f0f0; }
+    .cart-item .remove-btn { margin-left:auto; }
+    .cart-item .meta { font-size:12px; color:#7f8c8d; }
+    .cart-item .remove { margin-left:auto; color:#e74c3c; cursor:pointer; text-decoration:none; font-size:12px; }
+    .cart-drawer footer { padding:12px 16px; border-top:1px solid #eee; }
+    .checkout-btn { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; border:none; padding:10px 16px; border-radius:24px; cursor:pointer; }
+    .tip { color:#7f8c8d; font-size:12px; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <header class="shop-header">
+    <div class="logo">EcoHub<span class="leaf">•</span></div>
+    <div class="header-actions">
+      <div class="timer" id="timer">剩余时间：05:00</div>
+      <div class="music-note" id="bgm-note">优美音乐伴您舒心购物</div>
+    </div>
+  </header>
+
+  <section class="hero" style="background: linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));">
+    <div>
+      <p style="color:#2d7d32; font-size:1.2em; margin-bottom:16px;">轻松浏览并选择你喜欢的商品，完成一次简短的购物体验。</p>
+      <div class="tip" style="font-size:18px; line-height:1.6; font-weight:600;">
+        提示：点击“加入购物车”添加商品；右下角“购物车”可查看或移除；<br>
+        请根据不同的商品描述，从四大品类中选择<strong>8件商品</strong>后点击“立即结算”，整个过程不涉及真实支付。
+      </div>
+    </div>
+  </section>
+
+  <div class="main-container">
+    <aside class="sidebar">
+      <h3>分类</h3>
+      <ul class="category-list" id="category-list"></ul>
+    </aside>
+    <main class="content">
+      <div class="controls">
+        <label>排序：</label>
+        <select id="sort-select">
+          <option value="default">默认</option>
+          <option value="price-asc">价格从低到高</option>
+          <option value="price-desc">价格从高到低</option>
+        </select>
+      </div>
+      <div class="product-list" id="product-list"></div>
+      <div class="finish-bar">
+        <button id="finish-btn" class="primary-btn">完成</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- 音频启动提示（适配移动端/浏览器自动播放策略） -->
+  <div id="audio-gate" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:2000;">
+    <button id="audio-gate-btn" class="primary-btn" style="padding:14px 28px;border-radius:28px;background:linear-gradient(45deg,#81c784,#4db6ac);">点击开始播放音乐</button>
+  </div>
+
+  <!-- 不足 8 件提示模态框结构 -->
+  <div id="insufficient-backdrop" class="insufficient-backdrop"></div>
+  <div id="insufficient-modal" class="insufficient-modal">
+    <div class="title">温馨提示</div>
+    <div class="desc">您需要选择八件商品之后再结算。</div>
+    <div style="text-align:right;"><button id="insufficient-ok" class="btn">继续浏览</button></div>
+  </div>
+
+  <!-- 超过 8 件提示模态框结构 -->
+  <div id="over-limit-backdrop" class="over-limit-backdrop"></div>
+  <div id="over-limit-modal" class="over-limit-modal">
+    <div class="title">温馨提示</div>
+    <div class="desc">您不能选择超过八件商品，是否结算？</div>
+    <div style="text-align:right;">
+      <button id="over-limit-cancel" class="btn">再想想</button>
+      <button id="over-limit-confirm" class="btn primary">立即结算</button>
+    </div>
+  </div>
+
+  <!-- 悬浮购物车模态框 -->
+  <style>
+    .cart-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); opacity:0; display:none; z-index:1200; transition: opacity .25s ease; }
+    .cart-modal { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.98); width:680px; max-width:92vw; height:70vh; 
+      background: linear-gradient(135deg, rgba(236,253,245,0.65), rgba(209,250,229,0.55));
+      border: 1px solid rgba(56,178,172,0.35);
+      backdrop-filter: blur(12px) saturate(120%);
+      -webkit-backdrop-filter: blur(12px) saturate(120%);
+      border-radius:16px; box-shadow:0 30px 80px rgba(56,178,172,.25); display:none; z-index:1201; overflow:hidden; flex-direction:column; opacity:0; transition: opacity .25s ease, transform .25s ease; }
+    .cart-modal.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+    @keyframes modalFloat {
+      0%   { transform: translate(-50%,-50%) scale(1) translateY(0) rotate(0.1deg); box-shadow:0 24px 60px rgba(0,0,0,.25); }
+      50%  { transform: translate(-50%,-50%) scale(1) translateY(-10px) rotate(-0.25deg); box-shadow:0 28px 70px rgba(0,0,0,.28); }
+      100% { transform: translate(-50%,-50%) scale(1) translateY(0) rotate(0.1deg); box-shadow:0 24px 60px rgba(0,0,0,.25); }
+    }
+    .cart-modal.floaty { animation: modalFloat 4s ease-in-out infinite; }
+    .cart-modal-backdrop.show { opacity:1; }
+    .cart-modal header { padding:16px; border-bottom:1px solid rgba(56,178,172,.25); display:flex; justify-content:space-between; align-items:center; 
+      background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15)); }
+    .cart-modal .list { flex:1; overflow:auto; padding:16px 18px; font-size:15px; }
+    .cart-modal footer { padding:12px 16px; border-top:1px solid rgba(56,178,172,.25); background: linear-gradient(0deg, rgba(255,255,255,0.35), rgba(255,255,255,0.10)); }
+    .action-row { display:flex; gap:12px; justify-content:flex-end; }
+    .btn { border:none; border-radius:24px; padding:10px 16px; cursor:pointer; }
+    .btn.small { padding:8px 12px; border-radius:18px; font-size:13px; }
+    .btn-primary { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; }
+    .btn-ghost { background:#e5e7eb; color:#6b7280; }
+    .muted { color:#7f8c8d; font-size:12px; }
+  </style>
+  <!-- 不足 8 件提示模态框 -->
+  <style>
+    .insufficient-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; opacity:0; transition:opacity .2s ease; z-index:1400; }
+    .insufficient-backdrop.show { display:block; opacity:1; }
+    .insufficient-modal { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.98); width:520px; max-width:92vw; padding:20px; 
+      background:#fff; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.25); display:none; opacity:0; transition: opacity .2s ease, transform .2s ease; z-index:1401; }
+    .insufficient-modal.show { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
+    .insufficient-modal .title { font-weight:800; color:#1f2937; margin-bottom:8px; }
+    .insufficient-modal .desc { color:#475569; margin-bottom:16px; }
+    .insufficient-modal .btn { background:#334155; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; }
+  </style>
+  <!-- 超过 8 件提示模态框 -->
+  <style>
+    .over-limit-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; opacity:0; transition:opacity .2s ease; z-index:1500; }
+    .over-limit-backdrop.show { display:block; opacity:1; }
+    .over-limit-modal { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.98); width:520px; max-width:92vw; padding:20px; 
+      background:#fff; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.25); display:none; opacity:0; transition: opacity .2s ease, transform .2s ease; z-index:1501; }
+    .over-limit-modal.show { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
+    .over-limit-modal .title { font-weight:800; color:#1f2937; margin-bottom:8px; }
+    .over-limit-modal .desc { color:#475569; margin-bottom:16px; }
+    .over-limit-modal .btn { background:#334155; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; margin-right:8px; }
+    .over-limit-modal .btn.primary { background:#10b981; }
+  </style>
+  <div class="cart-modal-backdrop" id="cart-modal-backdrop"></div>
+  <div class="cart-modal" id="cart-modal">
+    <header>
+      <strong>已选商品（<span id="cart-title-count">0</span>/8）</strong>
+      <button id="cart-close" class="btn btn-ghost small">关闭</button>
+    </header>
+    <div class="list" id="modal-list"></div>
+    <footer>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div class="muted">合计</div>
+          <strong id="modal-total">￥0.00</strong>
+        </div>
+        <div class="action-row">
+          <button id="modal-think" class="btn btn-ghost" style="display:none;">再想想</button>
+          <button id="modal-confirm" class="btn btn-primary">立即结算</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 右侧悬浮购物车按钮 -->
+  <style>
+    .floating-cart { position:fixed; right:24px; bottom:28px; display:flex; flex-direction:column; gap:14px; z-index:1300; }
+    .floating-cart .fab { background:linear-gradient(45deg,#81c784,#4db6ac); color:#fff; border:none; padding:16px 22px; border-radius:30px; box-shadow:0 16px 36px rgba(77,182,172,.35); cursor:pointer; font-size:16px; transition: transform .2s ease, box-shadow .2s ease; }
+    .floating-cart .fab:hover { transform: translateY(-2px); box-shadow:0 22px 44px rgba(77,182,172,.45); }
+    .floating-cart .fab.secondary { background:#334155; }
+    .floating-cart .badge { margin-left:8px; background:#0f172a; color:#fff; border-radius:999px; padding:2px 8px; font-size:12px; }
+  </style>
+  <div class="floating-cart">
+    <button id="fab-cart" class="fab">🛒 购物车 <span id="fab-count" class="badge">0</span></button>
+    <button id="fab-checkout" class="fab secondary">立即结算</button>
+  </div>
+
+  <!-- 资源预加载遮罩 -->
+  <div id="preload-mask" style="position:fixed;inset:0;background:rgba(255,255,255,0.95);display:none;align-items:center;justify-content:center;z-index:2500;">
+    <div style="text-align:center;color:#334155;">
+      <div style="font-size:20px;font-weight:700;margin-bottom:8px;">资源正在加载中，请稍候…</div>
+      <div style="font-size:14px;color:#64748b;">预计 <span id="preload-count">5</span> 秒</div>
+    </div>
+  </div>
+  <!-- Firebase CDN 与配置（需在 public/firebase-config.js 填写真实配置） -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="/firebase-config.js"></script>
+  <script src="/firebase.js"></script>
+  <!-- 直接引用 public/experiment/ 下的 js 文件 -->
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
+  <script src="audio.js"></script>
+  <script src="shopping-task-entry.js"></script>
+</body>
