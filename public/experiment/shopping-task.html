@@ -46,6 +46,91 @@
       gap: 24px;
       padding: 0 16px;
     }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0 12px;
+        margin: 12px auto 20px auto;
+      }
+      
+      .shop-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 12px;
+        margin: 16px auto 0 auto;
+      }
+      
+      .header-actions {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+      
+      .hero {
+        margin: 12px auto 0 auto;
+        padding: 16px;
+      }
+      
+      .hero h1 {
+        font-size: 1.5em;
+      }
+      
+      .hero p {
+        font-size: 1em;
+      }
+      
+      .sidebar {
+        order: 2;
+        padding: 12px;
+      }
+      
+      .content {
+        order: 1;
+        padding: 12px;
+      }
+      
+      .product-card {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+      }
+      
+      .product-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+      
+      .p-right {
+        text-align: center;
+        min-width: auto;
+      }
+      
+      .floating-cart {
+        right: 16px;
+        bottom: 20px;
+        gap: 12px;
+      }
+      
+      .floating-cart .fab {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .cart-modal {
+        width: 95vw;
+        height: 80vh;
+      }
+      
+      .insufficient-modal,
+      .over-limit-modal {
+        width: 90vw;
+        padding: 16px;
+      }
+    }
     .sidebar {
       background:#fff; border-radius:12px; padding:16px; box-shadow:0 10px 20px rgba(0,0,0,0.06);
     }
@@ -138,6 +223,17 @@
     <div style="text-align:right;"><button id="insufficient-ok" class="btn">继续浏览</button></div>
   </div>
 
+  <!-- 超过 8 件提示模态框结构 -->
+  <div id="over-limit-backdrop" class="over-limit-backdrop"></div>
+  <div id="over-limit-modal" class="over-limit-modal">
+    <div class="title">温馨提示</div>
+    <div class="desc">您不能选择超过八件商品，是否结算？</div>
+    <div style="text-align:right;">
+      <button id="over-limit-cancel" class="btn">再想想</button>
+      <button id="over-limit-confirm" class="btn primary">立即结算</button>
+    </div>
+  </div>
+
   <!-- 悬浮购物车模态框 -->
   <style>
     .cart-modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); opacity:0; display:none; z-index:1200; transition: opacity .25s ease; }
@@ -177,6 +273,18 @@
     .insufficient-modal .desc { color:#475569; margin-bottom:16px; }
     .insufficient-modal .btn { background:#334155; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; }
   </style>
+  <!-- 超过 8 件提示模态框 -->
+  <style>
+    .over-limit-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; opacity:0; transition:opacity .2s ease; z-index:1500; }
+    .over-limit-backdrop.show { display:block; opacity:1; }
+    .over-limit-modal { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.98); width:520px; max-width:92vw; padding:20px; 
+      background:#fff; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.25); display:none; opacity:0; transition: opacity .2s ease, transform .2s ease; z-index:1501; }
+    .over-limit-modal.show { display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
+    .over-limit-modal .title { font-weight:800; color:#1f2937; margin-bottom:8px; }
+    .over-limit-modal .desc { color:#475569; margin-bottom:16px; }
+    .over-limit-modal .btn { background:#334155; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; margin-right:8px; }
+    .over-limit-modal .btn.primary { background:#10b981; }
+  </style>
   <div class="cart-modal-backdrop" id="cart-modal-backdrop"></div>
   <div class="cart-modal" id="cart-modal">
     <header>
@@ -209,6 +317,14 @@
   <div class="floating-cart">
     <button id="fab-cart" class="fab">🛒 购物车 <span id="fab-count" class="badge">0</span></button>
     <button id="fab-checkout" class="fab secondary">立即结算</button>
+  </div>
+
+  <!-- 资源预加载遮罩 -->
+  <div id="preload-mask" style="position:fixed;inset:0;background:rgba(255,255,255,0.95);display:none;align-items:center;justify-content:center;z-index:2500;">
+    <div style="text-align:center;color:#334155;">
+      <div style="font-size:20px;font-weight:700;margin-bottom:8px;">资源正在加载中，请稍候…</div>
+      <div style="font-size:14px;color:#64748b;">预计 <span id="preload-count">5</span> 秒</div>
+    </div>
   </div>
   <!-- Firebase CDN 与配置（需在 public/firebase-config.js 填写真实配置） -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>

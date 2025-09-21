@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验二维码</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .qr-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+    
+    .qr-code {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .url-text {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #495057;
+      word-break: break-all;
+      margin: 20px 0;
+    }
+    
+    .instructions {
+      color: #6c757d;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+    
+    .download-btn {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+      transition: transform 0.2s ease;
+    }
+    
+    .download-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .qr-container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 1.5em;
+      }
+      
+      .url-text {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="qr-container">
+    <h1>🛍️ 购物实验二维码</h1>
+    <div class="qr-code" id="qrcode"></div>
+    <div class="url-text" id="url-display">http://47.86.24.59:3000/</div>
+    <div class="instructions">
+      <strong>使用说明：</strong><br>
+      1. 用手机扫描上方二维码<br>
+      2. 系统会自动提示在浏览器中打开<br>
+      3. 在浏览器中完成实验流程
+    </div>
+    <button class="download-btn" onclick="downloadQR()">下载二维码</button>
+  </div>
+
+  <script>
+    const targetUrl = 'http://47.86.24.59:3000/';
+    
+    // 生成二维码
+    QRCode.toCanvas(document.getElementById('qrcode'), targetUrl, {
+      width: 200,
+      height: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    }, function (error) {
+      if (error) console.error('二维码生成失败:', error);
+    });
+    
+    // 下载二维码功能
+    function downloadQR() {
+      const canvas = document.querySelector('#qrcode canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = '购物实验二维码.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      }
+    }
+    
+    // 显示完整URL
+    document.getElementById('url-display').textContent = targetUrl;
+  </script>
+</body>
+</html>

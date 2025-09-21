@@ -25,8 +25,8 @@ window.addEventListener('DOMContentLoaded', function() {
   let musicInterruptedAt = null;
   let musicPlayed = false;
 
-  // 记录任务开始时间用于计算购买时长
-  const taskStartTs = Date.now();
+  // 记录任务开始时间用于计算购买时长（在正式开始后赋值）
+  let taskStartTs = null;
 
   // 使用新逻辑：在 5 分钟内连续播放该组的多首音乐
   // 为兼容浏览器自动播放策略：在首次用户交互时启动音乐序列
@@ -132,11 +132,13 @@ window.addEventListener('DOMContentLoaded', function() {
       ecoDesc: '源自自然： 萃取天然植物活性成分，高效去油的同时，生物降解度高，减少水体负担。', price: 39.0 }
   ];
 
-  // 展开为16个卡片：经典/环保两种文案，图片相同
-  const PRODUCTS = BASE_ITEMS.flatMap(base => ([
-    { key: base.id + '-classic', baseId: base.id, category: base.category, name: base.name, variant: 'classic', tag: '', image: base.image, desc: base.classicDesc },
-    { key: base.id + '-eco',     baseId: base.id, category: base.category, name: base.name, variant: 'eco',     tag: '', image: base.image, desc: base.ecoDesc }
-  ]));
+  // 展开为16个卡片：经典/环保两种文案，图片相同，但绿色商品随机在第一或第二位
+  const PRODUCTS = BASE_ITEMS.flatMap(base => {
+    const classic = { key: base.id + '-classic', baseId: base.id, category: base.category, name: base.name, variant: 'classic', tag: '', image: base.image, desc: base.classicDesc };
+    const eco = { key: base.id + '-eco', baseId: base.id, category: base.category, name: base.name, variant: 'eco', tag: '', image: base.image, desc: base.ecoDesc };
+    // 随机决定绿色商品在第一还是第二位，但保持相同图片相邻
+    return Math.random() < 0.5 ? [classic, eco] : [eco, classic];
+  });
 
   const state = {
     selectedItems: [], // 保存 key，例如 food-coffee-eco
@@ -205,6 +207,11 @@ window.addEventListener('DOMContentLoaded', function() {
     if (idx >= 0) {
       state.selectedItems.splice(idx, 1);
     } else {
+      // 检查是否超过8件限制
+      if (state.selectedItems.length >= 8) {
+        showOverLimitModal();
+        return;
+      }
       state.selectedItems.push(id);
     }
     renderCart();
@@ -276,12 +283,66 @@ window.addEventListener('DOMContentLoaded', function() {
     const t = setInterval(tick, 1000);
   }
 
-  // 初始化渲染
-  renderProducts();
-  renderCart();
-  renderDrawer();
-  initCategoryAndSort();
-  startTimer(5 * 60);
+  // --------- 资源预加载并在完成后再开始倒计时 ---------
+  async function waitForResourcesAndStart() {
+    const mask = document.getElementById('preload-mask');
+    const cnt  = document.getElementById('preload-count');
+    if (mask) {
+      mask.style.display = 'flex';
+    }
+    // 倒计时文案（最多 8 秒）
+    let remain = 5;
+    let ticker = null;
+    if (cnt) {
+      cnt.textContent = String(remain);
+      ticker = setInterval(()=>{ remain = Math.max(0, remain - 1); cnt.textContent = String(remain); }, 1000);
+    }
+
+    // 图片预加载
+    const imageUrls = BASE_ITEMS.map(b => b.image);
+    const preloadImages = (urls, timeoutMs=6000) => new Promise(resolve => {
+      if (!urls || urls.length === 0) return resolve(true);
+      let loaded = 0, done = false;
+      const finish = () => { if (!done) { done = true; resolve(true); } };
+      const timer = setTimeout(finish, timeoutMs);
+      urls.forEach(u => {
+        const img = new Image();
+        img.onload = () => { loaded++; if (loaded >= urls.length) { clearTimeout(timer); finish(); } };
+        img.onerror = () => { loaded++; if (loaded >= urls.length) { clearTimeout(timer); finish(); } };
+        img.src = u;
+      });
+    });
+
+    // 音乐清单预加载（不要求真正开始播放，以免被自动播放策略拦截）
+    const preloadMusicList = async (timeoutMs=4000) => {
+      try {
+        if (audioManager && audioManager.loadMusicList) {
+          const p = audioManager.loadMusicList();
+          const t = new Promise(resolve => setTimeout(resolve, timeoutMs));
+          await Promise.race([p, t]);
+        }
+      } catch(_) {}
+      return true;
+    };
+
+    await Promise.all([
+      preloadImages(imageUrls),
+      preloadMusicList()
+    ]);
+
+    if (ticker) clearInterval(ticker);
+    if (mask) mask.style.display = 'none';
+
+    // 开始渲染与计时
+    renderProducts();
+    renderCart();
+    renderDrawer();
+    initCategoryAndSort();
+    taskStartTs = Date.now();
+    startTimer(5 * 60);
+  }
+
+  waitForResourcesAndStart();
 
   document.getElementById('finish-btn').onclick = async function() {
     audioManager.stop();
@@ -515,6 +576,27 @@ window.addEventListener('DOMContentLoaded', function() {
     if (insuffBackdrop) insuffBackdrop.classList.remove('show');
     if (insuffModal) insuffModal.classList.remove('show');
   }
+
+  // --------- 超过8件提示模态逻辑 ---------
+  const overLimitBackdrop = document.getElementById('over-limit-backdrop');
+  const overLimitModal = document.getElementById('over-limit-modal');
+  const overLimitConfirm = document.getElementById('over-limit-confirm');
+  const overLimitCancel = document.getElementById('over-limit-cancel');
+  function showOverLimitModal(){
+    if (overLimitBackdrop) overLimitBackdrop.classList.add('show');
+    if (overLimitModal) overLimitModal.classList.add('show');
+  }
+  function hideOverLimitModal(){
+    if (overLimitBackdrop) overLimitBackdrop.classList.remove('show');
+    if (overLimitModal) overLimitModal.classList.remove('show');
+  }
+  if (overLimitBackdrop) overLimitBackdrop.addEventListener('click', hideOverLimitModal);
+  if (overLimitCancel) overLimitCancel.addEventListener('click', hideOverLimitModal);
+  if (overLimitConfirm) overLimitConfirm.addEventListener('click', ()=>{
+    hideOverLimitModal();
+    document.getElementById('finish-btn').click();
+  });
+
   if (insuffBackdrop) insuffBackdrop.addEventListener('click', hideInsufficientModal);
   if (insuffOk) insuffOk.addEventListener('click', hideInsufficientModal);
 });

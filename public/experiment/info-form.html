@@ -27,6 +27,37 @@
       overflow: hidden;
     }
     
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 90vw;
+        margin: 20px auto;
+        padding: 24px 20px;
+        border-radius: 16px;
+      }
+      
+      h1 {
+        font-size: 1.6em;
+      }
+      
+      .form-intro {
+        font-size: 1em;
+      }
+      
+      .form-icon {
+        font-size: 2em;
+      }
+      
+      .radio-group {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .radio-option {
+        justify-content: center;
+      }
+    }
+    
     .container::before {
       content: '';
       position: absolute;

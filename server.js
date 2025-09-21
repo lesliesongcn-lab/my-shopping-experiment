@@ -36,9 +36,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// 主页路由
+// 主页路由 - 检测移动端并重定向
 app.get('/', (req, res) => {
+  const userAgent = req.headers['user-agent'].toLowerCase();
+  const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent);
+  const isAppBrowser = /micromessenger|wechat|qq|alipay|taobao/i.test(userAgent);
+  
+  // 如果是移动端且在应用内浏览器中，重定向到提示页面
+  if (isMobile && isAppBrowser) {
+    return res.sendFile(path.join(__dirname, 'public', 'mobile-redirect.html'));
+  }
+  
+  // 否则返回正常主页
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 二维码页面路由
+app.get('/qr', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'qr.html'));
 });
 
 // 简单的轮流分配：在 data/assign.json 中记录上次分配结果

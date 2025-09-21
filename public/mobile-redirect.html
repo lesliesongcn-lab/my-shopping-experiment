@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>请在浏览器中打开</title>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .redirect-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    .icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+    
+    .message {
+      color: #6c757d;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    
+    .browser-btn {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-block;
+      margin: 10px;
+      transition: transform 0.2s ease;
+    }
+    
+    .browser-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .copy-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 20px;
+      transition: transform 0.2s ease;
+    }
+    
+    .copy-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .url-display {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #495057;
+      word-break: break-all;
+      margin: 20px 0;
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .redirect-container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 1.5em;
+      }
+      
+      .icon {
+        font-size: 3em;
+      }
+      
+      .browser-btn {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="redirect-container">
+    <div class="icon">🌐</div>
+    <h1>请在浏览器中打开</h1>
+    <div class="message">
+      为了获得最佳体验，请复制链接到浏览器中打开，或点击下方按钮在默认浏览器中打开。
+    </div>
+    
+    <div class="url-display" id="url-display">http://47.86.24.59:3000/</div>
+    
+    <a href="http://47.86.24.59:3000/" class="browser-btn" target="_blank">
+      在浏览器中打开
+    </a>
+    
+    <button class="copy-btn" onclick="copyUrl()">复制链接</button>
+  </div>
+
+  <script>
+    const targetUrl = 'http://47.86.24.59:3000/';
+    
+    // 复制链接功能
+    function copyUrl() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(targetUrl).then(() => {
+          alert('链接已复制到剪贴板');
+        }).catch(() => {
+          fallbackCopyUrl();
+        });
+      } else {
+        fallbackCopyUrl();
+      }
+    }
+    
+    // 备用复制方法
+    function fallbackCopyUrl() {
+      const textArea = document.createElement('textarea');
+      textArea.value = targetUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        alert('链接已复制到剪贴板');
+      } catch (err) {
+        alert('复制失败，请手动复制链接');
+      }
+      document.body.removeChild(textArea);
+    }
+    
+    // 显示完整URL
+    document.getElementById('url-display').textContent = targetUrl;
+    
+    // 如果是微信等应用内浏览器，显示额外提示
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('micromessenger') || userAgent.includes('wechat')) {
+      const message = document.querySelector('.message');
+      message.innerHTML += '<br><br><strong>微信用户：</strong>请点击右上角"..."选择"在浏览器中打开"';
+    }
+  </script>
+</body>
+</html>

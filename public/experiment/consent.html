@@ -27,6 +27,28 @@
       overflow: hidden;
     }
     
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 90vw;
+        margin: 20px auto;
+        padding: 24px 20px;
+        border-radius: 16px;
+      }
+      
+      h1 {
+        font-size: 1.6em;
+      }
+      
+      h2 {
+        font-size: 1.2em;
+      }
+      
+      .consent-icon {
+        font-size: 2em;
+      }
+    }
+    
     .container::before {
       content: '';
       position: absolute;
@@ -118,7 +140,7 @@
     <h2>简短的线上选购体验</h2>
     <div class="section">
       <h3>体验说明</h3>
-      <p>本研究是一项<strong>在线消费行为实验</strong>。请使用<strong>电脑</strong>在<strong>安静环境</strong>下参与，并提前将设备音量调至<strong>舒适的中等水平</strong>。</p>
+      <p>本研究是一项<strong>在线消费行为实验</strong>。请使用<strong>手机或电脑</strong>在<strong>安静环境</strong>下参与，并提前将设备音量调至<strong>舒适的中等水平</strong>。</p>
       <p>您将完成一个虚拟购物任务，浏览商品并做出选择。整个过程<strong>匿名，不涉及真实支付</strong>。您的参与<strong>完全自愿</strong>，您可在任何时候<strong>自由退出</strong>，不会产生任何不良后果。</p>
       <p>感谢您的支持与参与！</p>
     </div>
