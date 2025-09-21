@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网络连接测试</title>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .test-item {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #ddd;
+    }
+    
+    .test-item.success {
+      background: #d4edda;
+      border-left-color: #28a745;
+    }
+    
+    .test-item.error {
+      background: #f8d7da;
+      border-left-color: #dc3545;
+    }
+    
+    .test-item.loading {
+      background: #fff3cd;
+      border-left-color: #ffc107;
+    }
+    
+    .status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .status.success { color: #28a745; }
+    .status.error { color: #dc3545; }
+    .status.loading { color: #ffc107; }
+    
+    .retry-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    
+    .retry-btn:hover {
+      background: #0056b3;
+    }
+    
+    .info {
+      background: #e7f3ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 网络连接测试</h1>
+    
+    <div class="info">
+      <strong>测试说明：</strong><br>
+      此页面将测试各种网络连接，帮助诊断加载问题。
+    </div>
+    
+    <div id="test-results">
+      <div class="test-item loading">
+        <div class="status loading">⏳ 正在测试...</div>
+        <div>开始网络连接测试</div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <button class="retry-btn" onclick="runTests()">🔄 重新测试</button>
+      <button class="retry-btn" onclick="window.location.href='/'">🏠 返回首页</button>
+    </div>
+  </div>
+
+  <script>
+    const tests = [
+      {
+        name: '基础服务器连接',
+        url: '/api/music-list',
+        method: 'GET'
+      },
+      {
+        name: '图片资源加载',
+        url: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/images/food-coffee.png',
+        method: 'GET'
+      },
+      {
+        name: '音乐资源加载',
+        url: 'https://psychology-experiment-music.oss-cn-hongkong.aliyuncs.com/green-shopping-experiment/public/music/neutral/june-lang-lang.mp3',
+        method: 'GET'
+      },
+      {
+        name: 'CDN连接测试',
+        url: 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+        method: 'GET'
+      }
+    ];
+    
+    function createTestElement(name, status, message) {
+      return `
+        <div class="test-item ${status}">
+          <div class="status ${status}">${status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳'} ${name}</div>
+          <div>${message}</div>
+        </div>
+      `;
+    }
+    
+    async function runTests() {
+      const resultsContainer = document.getElementById('test-results');
+      resultsContainer.innerHTML = '';
+      
+      for (const test of tests) {
+        // 显示加载状态
+        resultsContainer.innerHTML += createTestElement(test.name, 'loading', '测试中...');
+        
+        try {
+          const startTime = Date.now();
+          const response = await fetch(test.url, { 
+            method: test.method,
+            mode: 'cors',
+            cache: 'no-cache'
+          });
+          const endTime = Date.now();
+          const duration = endTime - startTime;
+          
+          if (response.ok) {
+            resultsContainer.innerHTML += createTestElement(
+              test.name, 
+              'success', 
+              `连接成功 (${duration}ms)`
+            );
+          } else {
+            resultsContainer.innerHTML += createTestElement(
+              test.name, 
+              'error', 
+              `HTTP错误: ${response.status}`
+            );
+          }
+        } catch (error) {
+          resultsContainer.innerHTML += createTestElement(
+            test.name, 
+            'error', 
+            `连接失败: ${error.message}`
+          );
+        }
+        
+        // 添加延迟，避免请求过快
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // 添加总结
+      resultsContainer.innerHTML += `
+        <div class="info">
+          <strong>测试完成！</strong><br>
+          如果看到错误，可能是网络环境或防火墙限制。<br>
+          建议：<br>
+          1. 检查网络连接<br>
+          2. 尝试切换网络（WiFi/移动数据）<br>
+          3. 联系网络管理员检查防火墙设置<br>
+          4. 稍后重试
+        </div>
+      `;
+    }
+    
+    // 页面加载时自动运行测试
+    document.addEventListener('DOMContentLoaded', runTests);
+  </script>
+</body>
+</html>
